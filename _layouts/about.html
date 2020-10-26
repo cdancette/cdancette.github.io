@@ -18,7 +18,7 @@ layout: default
         {% if page.profile %}
         <div class="profile col-4 {% if page.profile.align == 'left' %}order-first{% endif %}">
           {% if page.profile.image %}
-            <img class="img-fluid z-depth-1 rounded" src="{{ page.profile.image | prepend: '/assets/img/' | relative_url }}">
+            <img class="img-fluid z-depth-1 rounded" src="{{ page.profile.image | prepend: '/assets/' | relative_url }}">
           {% endif %}
           {% if page.profile.address %}
             <div class="address">
@@ -40,5 +40,15 @@ layout: default
     </div>
     {% endif %}
   </article>
+</div>
+
+<hr>
+<a class="anchor" id="publications"></a>
+<h1>Publications</h1>
+<div class="publications">
+  {% for y in page.years %}
+    <h2 class="year">{{y}}</h2>
+    {% bibliography -f papers -q @*[year={{y}}]* %}
+  {% endfor %}
 
 </div>

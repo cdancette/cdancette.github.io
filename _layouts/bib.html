@@ -1,15 +1,37 @@
 ---
 ---
 
+<!-- 
+  Which fields are displayed ?
+
+  - abbr: short abstract ?
+  - type
+  - title
+  - author
+  - abstract
+  - arxiv
+  - html
+  - pdf
+  - suppl
+  - poster
+  - slides
+  - code
+
+ -->
+
+
 <div class="row">
-  <div class="col-sm-2 abbr">
-  {% if entry.abbr %}
+  <div class="col-sm-2">
+  {% if entry.image %}
+    <img class="img-fluid" src={{entry.image}}>
+  {% endif %}
+  <!-- {% if entry.abbr %}
     {% if site.data.venues[entry.abbr] %}
     <abbr class="badge"><a href="{{site.data.venues[entry.abbr].url}}" target="_blank">{{entry.abbr}}</a></abbr>
     {% else %}
     <abbr class="badge">{{entry.abbr}}</abbr>
     {% endif %}
-  {% endif %}
+  {% endif %} -->
   </div>
 
   <div id="{{entry.key}}" class="col-sm-8">
@@ -21,29 +43,30 @@
         {% for author in entry.author_array %}
           {% if forloop.length == 1 %}
             {% if author.last == site.scholar.last_name %}
-              <em>{{author.last}}, {{author.first}}</em>
+              <em>{{author.first}} {{author.last}}</em>
+            }
             {% else %}
-              {{author.last}}, {{author.first}}
+              {{author.first}} {{author.last}}
             {% endif %}
           {% else %}
             {% unless forloop.last %}
               {% if author.last == site.scholar.last_name %}
-                <em>{{author.last}}, {{author.first}}</em>,
+                <em>{{author.first}} {{author.last}}</em>,
               {% else %}
                 {% if site.data.coauthors[author.last] %}
-                  <a href="{{site.data.coauthors[author.last].url}}" target="_blank">{{author.last}}, {{author.first}}</a>,
+                  <a href="{{site.data.coauthors[author.last].url}}" target="_blank">{{author.first}} {{author.last}}</a>,
                 {% else %}
-                  {{author.last}}, {{author.first}},
+                  {{author.first}} {{author.last}},
                 {% endif %}
               {% endif %}
             {% else %}
               {% if author.last == site.scholar.last_name %}
-                and <em>{{author.last}}, {{author.first}}</em>
+                and <em>{{author.first}} {{author.last}}</em>
               {% else %}
                 {% if site.data.coauthors[author.last] %}
-                  and <a href="{{site.data.coauthors[author.last].url}}" target="_blank">{{author.last}}, {{author.first}}</a>
+                  and <a href="{{site.data.coauthors[author.last].url}}" target="_blank">{{author.first}} {{author.last}}</a>
                 {% else %}
-                  and {{author.last}}, {{author.first}}
+                  and {{author.first}} {{author.last}}
                 {% endif %}
               {% endif %}
             {% endunless %}
@@ -67,6 +90,9 @@
     {% if entry.abstract %}
       [<a class="abstract">Abs</a>]
     {% endif %}
+    {% if entry.bibtex %}
+      [<a class="bibtex">BibTex</a>]
+    {% endif %}
     {% if entry.arxiv %}
       [<a href="http://arxiv.org/abs/{{ entry.arxiv }}" target="_blank">arXiv</a>]
     {% endif %}
@@ -74,8 +100,9 @@
       [<a href="{{ entry.html }}" target="_blank">HTML</a>]
     {% endif %}
     {% if entry.pdf %}
-      [<a href="{{ entry.pdf | prepend: '/assets/pdf/' | relative_url }}" target="_blank">PDF</a>]
-    {% endif %}
+      <!-- [<a href="{{ entry.pdf | prepend: '/assets/pdf/' | relative_url }}" target="_blank">PDF</a>] -->
+      [<a href="{{ entry.pdf }}" target="_blank">PDF</a>]
+      {% endif %}
     {% if entry.supp %}
       [<a href="{{ entry.supp | prepend: '/assets/pdf/' | relative_url }}" target="_blank">Supp</a>]
     {% endif %}
@@ -94,6 +121,11 @@
     {% if entry.abstract %}
     <span class="abstract hidden">
       <p>{{ entry.abstract }}</p>
+    </span>
+    {% endif %}
+    {% if entry.bibtex %}
+    <span class="bibtex hidden">
+      <pre>{{ entry.bibtex }}</pre>
     </span>
     {% endif %}
   </div>

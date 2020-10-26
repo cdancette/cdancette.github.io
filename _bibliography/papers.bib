@@ -1,13 +1,87 @@
 ---
 ---
 
+
+Which fields are displayed ?
+
+- abbr: short abstract ?
+- type
+- title
+- author
+- abstract
+- arxiv
+- html
+- pdf
+- suppl
+- poster
+- slides
+- code
+
+ADDDE:
+- TODO: image
+
+@article{dancette2020overcoming,
+  title={Overcoming Statistical Shortcuts for Open-ended Visual Counting},
+  author={Dancette, Corentin and Cadene, Remi and Chen, Xinlei and Cord, Matthieu},
+  journal={arXiv preprint arXiv:2006.10079},
+  year={2020},
+  code={https://github.com/cdancette/spatial-counting-network},
+  arxiv={2006.10079},
+  pdf={https://arxiv.org/pdf/2006.10079.pdf},
+  image={/assets/bibliography/scn.png},
+  abbr={In review},
+  abstract={Machine learning models tend to over-rely on statistical shortcuts. These spurious correlations between parts of the input and the output labels does not hold in real-world settings. We target this issue on the recent open-ended visual counting task which is well suited to study statistical shortcuts. We aim to develop models that learn a proper mechanism of counting regardless of the output label. First, we propose the Modifying Count Distribution (MCD) protocol, which penalizes models that over-rely on statistical shortcuts. It is based on pairs of training and testing sets that do not follow the same count label distribution such as the odd-even sets. Intuitively, models that have learned a proper mechanism of counting on odd numbers should perform well on even numbers. Secondly, we introduce the Spatial Counting Network (SCN), which is dedicated to visual analysis and counting based on natural language questions. Our model selects relevant image regions, scores them with fusion and self-attention mechanisms, and provides a final counting score. We apply our protocol on the recent dataset, TallyQA, and show superior performances compared to state-of-the-art models. We also demonstrate the ability of our model to select the correct instances to count in the image. Code and datasets are available: this https URL }
+}
+
+
+
+@inproceedings{cadene2019rubi,
+  title={RUBi: Reducing Unimodal Biases for Visual Question Answering},
+  author={Cadene, Remi and Dancette, Corentin and Cord, Matthieu and Parikh, Devi and others},
+  abbr={NeurIPS},
+  booktitle={NeurIPS},
+  pages={841--852},
+  year={2019},
+  code={https://github.com/cdancette/rubi.bootstrap.pytorch},
+  arxiv={1906.10169},
+  pdf={https://arxiv.org/pdf/1906.10169.pdf},
+  image={/assets/bibliography/rubi.png},
+  abstract={ Visual Question Answering (VQA) is the task of answering questions about an image. Some VQA models often exploit unimodal biases to provide the correct answer without using the image information. As a result, they suffer from a huge drop in performance when evaluated on data outside their training set distribution. This critical issue makes them unsuitable for real-world settings.
+We propose RUBi, a new learning strategy to reduce biases in any VQA model. It reduces the importance of the most biased examples, i.e. examples that can be correctly classified without looking at the image. It implicitly forces the VQA model to use the two input modalities instead of relying on statistical regularities between the question and the answer. We leverage a question-only model that captures the language biases by identifying when these unwanted regularities are used. It prevents the base VQA model from learning them by influencing its predictions. This leads to dynamically adjusting the loss in order to compensate for biases. We validate our contributions by surpassing the current state-of-the-art results on VQA-CP v2. This dataset is specifically designed to assess the robustness of VQA models when exposed to different question biases at test time than what was seen during training. Our code is available: http://github.com/cdancette/rubi.bootstrap.pytorch },
+}
+
+
+@inproceedings{thual2018k,
+  title={A K-nearest neighbours approach to unsupervised spoken term discovery},
+  author={Thual, Alexis and Dancette, Corentin and Karadayi, Julien and Benjumea, Juan and Dupoux, Emmanuel},
+  booktitle={2018 IEEE Spoken Language Technology Workshop (SLT)},
+  pages={491--497},
+  year={2018},
+  organization={IEEE},
+  abstract={Unsupervised spoken term discovery is the task of finding recurrent acoustic patterns in speech without any annotations. Current approaches consists of two steps: (1) discovering similar patterns in speech, and (2) partitioning those pairs of acoustic tokens using graph clustering methods. We propose a new approach for the first step. Previous systems used various approximation algorithms to make the search tractable on large amounts of data. Our approach is based on an optimized k-nearest neighbours (KNN) search coupled with a fixed word embedding algorithm. The results show that the KNN algorithm is robust across languages, consistently out-performs the DTW-based baseline, and is competitive with current state-of-the-art spoken term discovery systems.},
+}
+
+
+
+@inproceedings{Riad2018sampling,
+  author={Rachid Riad and Corentin Dancette and Julien Karadayi and Neil Zeghidour and Thomas Schatz and Emmanuel Dupoux},
+  title={Sampling Strategies in Siamese Networks for Unsupervised Speech Representation Learning},
+  year=2018,
+  booktitle={Proc. Interspeech},
+  pages={2658--2662},
+  doi={10.21437/Interspeech.2018-2384},
+  url={http://dx.doi.org/10.21437/Interspeech.2018-2384},
+  abstract={Recent studies have investigated siamese network architectures for learning invariant speech representations using same-different side information at the word level. Here we investigate systematically an often ignored component of siamese networks: the sampling procedure (how pairs of same vs. different tokens are selected). We show that sampling strategies taking into account Zipf's Law, the distribution of speakers and the proportions of same and different pairs of words significantly impact the performance of the network. In particular, we show that word frequency compression improves learning across a large range of variations in the number of training pairs. This effect does not apply to the same extent to the fully unsupervised setting, where the pairs of same-different words are obtained by spoken term discovery. We apply these results to pairs of words discovered using an unsupervised algorithm and show an improvement on the state-of-the-art in unsupervised representation learning using siamese networks. },
+}
+
+
 @string{aps = {American Physical Society,}}
 
 @book{einstein1956investigations,
   title={Investigations on the Theory of the Brownian Movement},
   author={Einstein, Albert},
   year={1956},
-  publisher={Courier Corporation,}
+  publisher={Courier Corporation,},
 }
 
 @article{einstein1950meaning,

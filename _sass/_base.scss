@@ -302,6 +302,8 @@ footer.sticky-bottom {
       }
       a.abstract, a.bibtex {
         cursor: pointer;
+        text-decoration: underline;
+        text-decoration-style: dashed;
       }
       .hidden {
         font-size: 0.875rem;
@@ -338,6 +340,21 @@ footer.sticky-bottom {
       span.abstract.hidden.open {
         border-color: $grey-color;
       }
+      span.bibtex.hidden {
+        border: dashed 1px white;
+      }
+      span.bibtex.hidden.open {
+        border-color: $grey-color;
+      }
     }
   }
+}
+
+
+//anchor 
+a.anchor {
+  display: block;
+  position: relative;
+  top: -100px;
+  visibility: hidden;
 }

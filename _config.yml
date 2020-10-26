@@ -2,17 +2,15 @@
 # Site settings
 # -----------------------------------------------------------------------------
 
-title: Your Name
-email: you@example.com
+title: Corentin Dancette
+email: contact@cdancette.fr
 description: > # this means to ignore newlines until "url:"
   A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
 footer_text: >
-  Powered by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
-  Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-  Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a>.
+  Powered sort_by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
 
 url:  # the base hostname & protocol for your site
-baseurl: /al-folio # the subpath of your site, e.g. /blog/
+baseurl:  # the subpath of your site, e.g. /blog/
 last_updated: false # set to true if you want to display last updated in the footer
 
 # -----------------------------------------------------------------------------
@@ -20,7 +18,7 @@ last_updated: false # set to true if you want to display last updated in the foo
 # -----------------------------------------------------------------------------
 
 navbar_fixed: true
-footer_fixed: true
+footer_fixed: false
 # TODO: add layout settings (single page vs. multi-page)
 
 # -----------------------------------------------------------------------------
@@ -36,10 +34,10 @@ og_image: # The site-wide (default for all links) Open Graph preview image
 # Social integration
 # -----------------------------------------------------------------------------
 
-github_username: # your GitHub user name
-twitter_username: # your Twitter handle
-linkedin_username: # your LinkedIn user name
-scholar_userid: # your Google Scholar ID
+github_username: cdancette # your GitHub user name
+twitter_username: cdancette # your Twitter handle
+linkedin_username: cdancette # your LinkedIn user name
+scholar_userid: 2zReQdQAAAAJ # your Google Scholar ID
 orcid_id: # your ORCID ID
 medium_username: # your Medium username
 quora_username: # your Quora username
@@ -47,8 +45,7 @@ publons_id: # your ID on Publons
 research_gate_profile: # your profile on ResearchGate
 blogger_url: # your blogger URL
 
-contact_note: >
-  You can even add a little note about which of these is the best way to reach you.
+contact_note: Best to reach me by e-mail.
 
 google_analytics: UA-XXXXXXXXX # out your google-analytics code
 
@@ -56,13 +53,15 @@ google_analytics: UA-XXXXXXXXX # out your google-analytics code
 # Blog
 # -----------------------------------------------------------------------------
 
-blog_name: al-folio  # your blog must have a name for it to show up in the nav bar
-blog_description: a simple whitespace theme for academics
-permalink: /blog/:year/:title/
+blog_name: Blog  # your blog must have a name for it to show up in the nav bar
+blog_description: 
+permalink: /:year/:month/:day/:title/
 
 # Pagination
 pagination:
   enabled: true
+  per_page: 100
+  sort_reverse: true
 
 # Comments
 disqus_shortname: al-folio # put your disqus shortname
@@ -120,7 +119,7 @@ plugins:
 
 scholar:
 
-  last_name: Einstein
+  last_name: Dancette
 
   style: apa
   locale: en
@@ -138,7 +137,7 @@ scholar:
   details_dir: bibliography
   details_layout: bibtex.html
   details_link: Details
-
+  bibtex_skip_fields: ["abstract", "image", "abbr", "code"]
   query: "@*"
 
 # -----------------------------------------------------------------------------
@@ -150,7 +149,7 @@ enable_katex:             true
 enable_mansory:           true
 enable_progressbar:       true
 enable_tooltips:          false
-show_social_icons:        false
+show_social_icons:        true
 
 # -----------------------------------------------------------------------------
 # Library versions
