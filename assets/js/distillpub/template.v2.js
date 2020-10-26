@@ -81,6 +81,7 @@
 
   function mergeFromYMLFrontmatter(target, source) {
     target.title = source.title;
+    target.published = source.published;
     if (source.published) {
       if (source.published instanceof Date) {
         target.publishedDate = source.published;
@@ -2101,9 +2102,7 @@ d-appendix > distill-appendix {
     </div>
     <div>
       <h3>Published</h3>
-      ${frontMatter.publishedDate ? `
-        <p>${frontMatter.publishedMonth} ${frontMatter.publishedDay}, ${frontMatter.publishedYear}</p> ` : `
-        <p><em>Not published yet.</em></p>`}
+      ${frontMatter.published}
     </div>
   </div>
 `;
