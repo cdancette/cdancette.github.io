@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Corentin Dancette | Reinforcement learning sur un jeu simple grâce au Q-learning, Partie 2 : réseau de neurones avec Keras</title>
+<meta name="description" content="A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
+">
+
+<!-- Bootstrap & MDB -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/css/mdb.min.css" integrity="sha256-/SwJ2GDcEt5382i8zqDwl36VJGECxEoIcBIuoLmLR4g=" crossorigin="anonymous" />
+
+<!-- Fonts & Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"  integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons">
+
+<!-- Styles -->
+<link rel="shortcut icon" href="/assets/img/favicon.ico">
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<link rel="canonical" href="/2017/08/20/reinforcement-learning-part2/">
+
+<!-- Open Graph -->
+
+
+  </head>
+
+  <body class="fixed-top-nav sticky-bottom-footer">
+
+    <!-- Header -->
+
+    <header>
+
+    <!-- Nav Bar -->
+    <nav id="navbar" class="navbar navbar-light bg-white navbar-expand-sm fixed-top">
+    <div class="container">
+      
+        
+        <a class="navbar-brand title font-weight-lighter" href="/"><span class="font-weight-bold">Corentin</span> Dancette</a>
+      
+      <!-- Navbar Toogle -->
+      <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+      <div class="collapse navbar-collapse text-right" id="navbarNav">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">
+              about
+              
+            </a>
+          </li>
+          <ul class="navbar-nav ml-auto flex-nowrap">
+            <!-- About -->
+            <li class="nav-item ">
+              <a class="nav-link" href="/#publications">
+                publications
+                
+              </a>
+            </li>
+          
+          <!-- Blog -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/blog/">
+              blog
+              
+            </a>
+          </li>
+          
+          <!-- Other pages -->
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/projects/">
+                projects
+                
+              </a>
+          </li>
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/teaching/">
+                teaching
+                
+              </a>
+          </li>
+          
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+</header>
+
+
+    <!-- Content -->
+
+    <div class="container mt-5">
+      
+
+<div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Reinforcement learning sur un jeu simple grâce au Q-learning, Partie 2 : réseau de neurones avec Keras</h1>
+    <p class="post-meta">August 20, 2017</p>
+  </header>
+
+  <article class="post-content">
+    <p><img src="/assets/qlearning2/capture.gif" alt="Le jeu" /></p>
+
+<p>Cet article est la suite de <a href="/2017/08/18/reinforcement-learning-part1/">/2017/08/18/reinforcement-learning-part1/</a>.</p>
+
+<p>Dans cette deuxième partie, nous allons travailler encore sur le même jeu, mais en utilisant un réseau de neurone au lieu d’un tableau de valeurs.</p>
+
+<!-- more -->
+<h1 id="plan">Plan</h1>
+
+<ul>
+  <li><a href="/2017/08/18/reinforcement-learning-part1/">Partie 1</a> : jeu statique, le terrain ne change pas, utilisation d’un tableau de valeurs (sans réseau de neurones).</li>
+  <li><strong>Partie 2</strong> : Jeu statique, le terrain ne change pas, utilisation d’un réseau de neurone pour approximer la fonction de valeurs Q.</li>
+  <li><a href="/2018/01/03/reinforcement-learning-part3/">Partie 3</a> : Jeu dynamique, le terrain change à chaque partie : utilisation d’un réseau de neurones.</li>
+</ul>
+
+<p>Ici, nous allons modéliser la fonction de valeurs Q grâce à un réseau de neurones. Cela nous permet de ne pas maintenir un tableau qui contient les valeurs de Q pour chaque état et chaque action, ce qui va s’avérer très utile lorsque nous aurons un grand nombre d’états (comme pour la partie 3, ou le terrain sera modifié à chaque partie).</p>
+
+<p>Vous pouvez retrouver tout le code décrit dans cet article sur <a href="https://github.com/cdancette/machine-learning-projects/blob/master/q-learning/q-learning-blog-part2.ipynb">github</a>.</p>
+
+<h1 id="le-jeu">Le jeu</h1>
+
+<p>Identique, voir <a href="/2017/08/18/reinforcement-learning-part1/">Partie 1</a> : Un terrain est fixé, avec la position des éléments. Puis l’agent doit apprendre comment gagner le maximum de points en se déplaçant sur ce terrain.</p>
+
+<h1 id="le-réseau-de-neurone">Le réseau de neurone</h1>
+
+<p>Pour implémenter le réseau de neurone, nous utiliserons la librairie open source Keras, qui est une interface haut niveau à des librairies comme TensorFlow. Elle nous permet de créer des réseaux de neurone très simplement.</p>
+
+<p>Nous allons définir une classe “trainer”, qui sera l’interface avec le réseau de neurone.</p>
+
+<p>Les paramètres de cette classe seront :</p>
+<ul>
+  <li>les dimensions du réseau</li>
+  <li>le facteur d’actualisation <script type="math/tex">\gamma</script>. Il apparait dans la formule d’actualisation du Q learning : <script type="math/tex">Q(s, a) = r(s, a) + \gamma * max(Q(s', a'))</script></li>
+  <li>Le learning rate <script type="math/tex">\alpha</script>. Ce sera le learning rate de l’algorithme d’apprentissage du réseau de neurone.</li>
+  <li>Le facteur d’exploration <script type="math/tex">\epsilon</script>, et son coefficient multiplicateur (entre 0 et 1). A chaque étape, <script type="math/tex">\epsilon</script> sera multiplié par ce facteur.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Trainer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">epsilon_decay</span><span class="o">=</span><span class="mf">0.9999</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state_size</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">action_size</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon_min</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon_decay</span> <span class="o">=</span> <span class="n">epsilon_decay</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span></code></pre></figure>
+
+<h1 id="définition-du-réseau-de-neurone">Définition du réseau de neurone.</h1>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python">        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isfile</span><span class="p">(</span><span class="s">"model-"</span> <span class="o">+</span> <span class="n">name</span><span class="p">):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s">"model-"</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">state_size</span><span class="p">,),</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">"relu"</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">action_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'linear'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s">'mse'</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">sgd</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">learning_rate</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>       </code></pre></figure>
+
+<p>Les deux premières lignes sont utiles si l’on veut récupérer un modèle préexistant, enregistré sur le disque. La définition du modèle vient juste après :</p>
+
+<p><code class="language-plaintext highlighter-rouge">model = Sequential()</code>
+Ceci définit un réseau de neurone constitué de couches successives. Chaque couche que l’on va définir va prendre en entrée la couche précedemment définie.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    model.add(Dense(24, input_shape=(self.state_size,), activation='relu'))
+    model.add(Dense(24, activation="relu"))
+    model.add(Dense(self.action_size, activation='linear'))
+</code></pre></div></div>
+<p>Ici, nous ajoutons 3 couches : 
+La première est constituée de 24 neurones, comme entrée le state (donc d’une taille <code class="language-plaintext highlighter-rouge">state_size</code>). 
+L’activation est la fonction non linéaire qui filtre la sortie d’un neurone. Pour plus détail, vous pouvez lire <a href="http://cdancette.fr/2017/10/08/neural-nets/">http://cdancette.fr/2017/10/08/neural-nets/</a></p>
+
+<p>La seconde couche (hidden layer) est également constituée de 24 neurones, et de la même fonction d’activation.</p>
+
+<p>La dernière couche (final layer) possède 4 sorties (self.action_size), une pour chaque action. 
+Pour un état donné en entrée, la valeur que nous renverra chaque neurone sera un tableau de taille 4, chaqun contenant la valeur estimée de cette action.
+Comme dans la parrtie précédente, nous choisirons alors l’action avec la valeur maximale.</p>
+
+<p>Enfin, la ligne <code class="language-plaintext highlighter-rouge">model.compile(loss='mse', optimizer=sgd(lr=self.learning_rate))</code> indique que la définition est terminée, et qu’on souhaite entrainer le réseau
+avec l’algorithme <code class="language-plaintext highlighter-rouge">sgd</code> (<a href="https://fr.wikipedia.org/wiki/Algorithme_du_gradient_stochastique">stochastic gradient descent</a>). 
+De plus, <code class="language-plaintext highlighter-rouge">loss=mse</code> indique que l’on souhaite utiliser la los “mean squared error”, ie que l’on souhaite minimiser l’erreur quadratique moyenne. 
+D’autres loss sont utilisables, mais celle-ci est adaptée à la régression que l’on a ici.</p>
+
+<h1 id="entrainement">Entrainement</h1>
+
+<p>Nous allons définir une autre méthode à notre classe Trainer:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Trainer</span><span class="p">():</span>
+
+    <span class="p">...</span>
+
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">state</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+            <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">next_state</span><span class="p">])))</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">state</span><span class="p">])</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">target</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code></pre></figure>
+
+<p>Dans cette fonction, nous définissions la base de l’algorithme du Q learning : la mise à jour de Q.</p>
+
+<p>La formule est plus simple que dans le tutoriel précedent. En effet, la vitesse d’apprentissage (learning rate) n’apparait pas ici, car elle est incluse dans l’algorithme d’apprentissage, comme nous verrons plus tard. Nous définissions juste la valeur souhaitée de la valeur de Q pour cet état et cette action.</p>
+
+<p><code class="language-plaintext highlighter-rouge">target = self.model.predict(np.array([state]))[0]</code>
+Ici, nous récupérons la valeur prédite par le réseau, pour cet état. <code class="language-plaintext highlighter-rouge">target</code> est un tableau de taille 4.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python">     <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+        <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">next_state</span><span class="p">])))</span></code></pre></figure>
+
+<p>Ici, nous choissions la valeur cible pour l’action que nous avons effectué (nous ne changeons pas la valeur pour les autres actions, puisque nous n’avons pas de donnée sur la reward que aurions obtenu). Si c’est l’état final, la cible est la récompense. Sinon, c’est la récompense, plus la meilleure valeur que nous pourrions obtenir avec l’action suivante (dégradée du facteur d’actualisation <script type="math/tex">\gamma</script>)</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python">    <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">state</span><span class="p">])</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">target</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code></pre></figure>
+
+<p>C’est ici que s’effectue l’apprentissage du réseau : nous indiquons au réseau que pour cet état, il doit renvoyer cette sortie. Le réseau va alors modifier légerement ses poids (par l’algorithme de backpropagation), pour se rapprocher de la sortie désirée.</p>
+
+<p>Nous allons enfin définir une méthode qui nous renverra la meilleure action, pour un état donné. Cette fonction nous renverra un état aléatoire selon le paramètre d’exploration <script type="math/tex">\epsilon</script>.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Trainer</span><span class="p">():</span>
+
+    <span class="p">...</span>
+
+    <span class="k">def</span> <span class="nf">get_best_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">rand</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon</span> <span class="o">*=</span> <span class="bp">self</span><span class="p">.</span><span class="n">epsilon_decay</span>
+
+        <span class="k">if</span> <span class="n">rand</span> <span class="ow">and</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="p">.</span><span class="n">epsilon</span><span class="p">:</span>
+            <span class="c1"># The agent acts randomly
+</span>            <span class="k">return</span> <span class="n">random</span><span class="p">.</span><span class="n">randrange</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">action_size</span><span class="p">)</span>
+        
+        <span class="c1"># Predict the reward value based on the given state
+</span>        <span class="n">act_values</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">state</span><span class="p">]))</span>
+
+        <span class="c1"># Pick the action based on the predicted reward
+</span>        <span class="n">action</span> <span class="o">=</span>  <span class="n">np</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">act_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  
+        <span class="k">return</span> <span class="n">action</span></code></pre></figure>
+
+<p>D’abord, on multiplie epsilon par son facteur d’actualisation, de façon a diminuer progressivement l’aléatoire. On remarque que la fonction a un argument <code class="language-plaintext highlighter-rouge">rand</code>, qui indique si on souhaite une action possiblement aléatoire, ou la meilleure action possible (pas d’exploration).</p>
+
+<p>Le mode <code class="language-plaintext highlighter-rouge">rand=False</code> nous servira lorsque le modèle sera entrainé, pour l’utiliser.</p>
+
+<p>On retourne alors une action aléatoire avec une probabilité de <script type="math/tex">\epsilon</script>, et sinon, la meilleure action.
+On utilise pour cela le réseau de neurone : <code class="language-plaintext highlighter-rouge">self.model.predict(np.array([state]))</code> nous renvoie les valeurs de chaque action, et il nous suffit de choisir l’action avec la valeur maximale.</p>
+
+<p># Lancement de l’entrainement</p>
+
+<p>On définit une simple fonction <code class="language-plaintext highlighter-rouge">train</code>, qui va boucler sur le nombre d’itérations que l’on souhaite.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">time</span> 
+
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">episodes</span><span class="p">,</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">losses</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">episodes</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">game</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># score in current game
+</span>        <span class="n">done</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># steps in current game
+</span>        <span class="k">while</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
+            <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">trainer</span><span class="p">.</span><span class="n">get_best_action</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">next_state</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">game</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="n">reward</span>
+            <span class="n">trainer</span><span class="p">.</span><span class="n">train</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">next_state</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="n">scores</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">steps</span> <span class="o">&gt;</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="n">trainer</span><span class="p">.</span><span class="n">train</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span> <span class="c1"># we end the game
+</span>                <span class="n">scores</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># print log every 100 episode
+</span>            <span class="k">print</span><span class="p">(</span><span class="s">"episode: {}/{}, moves: {}, score: {}"</span>
+                  <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">episodes</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">f"epsilon : </span><span class="si">{</span><span class="n">trainer</span><span class="p">.</span><span class="n">epsilon</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">scores</span></code></pre></figure>
+
+<p>Dans cette boucle se déroule l’algorithme d’apprentissage par renforcement : L’agent effectue une action (obtenue par <code class="language-plaintext highlighter-rouge">trainer.get_best_action</code>)
+récupère sa récompense, et le nouvel état. 
+On entraine alors le réseau à associer le score de cet état et cette action à cette récompense par la fonction <code class="language-plaintext highlighter-rouge">trainer.train</code>.</p>
+
+<p>On peut alors lancer l’algorithme d’apprentissage :</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">g</span> <span class="o">=</span> <span class="n">Game</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">alea</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="c1"># Un jeu statique, avec 10% d'aléatoire dans les mouvements
+</span><span class="n">g</span><span class="p">.</span><span class="k">print</span><span class="p">()</span></code></pre></figure>
+
+<p>On obtient une grille de ce genre, ou le <code class="language-plaintext highlighter-rouge">x</code> représente l’agent, le <code class="language-plaintext highlighter-rouge">o</code> le puit, le <code class="language-plaintext highlighter-rouge">¤</code> le mur et le <code class="language-plaintext highlighter-rouge">@</code> l’arrivée.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>....
+..¤x
+..o.
+@...
+</code></pre></div></div>
+
+<p>On lance alors l’entrainement :</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span></code></pre></figure>
+
+<p><strong>Courbe de score en fonction de l’itération</strong>
+On peut afficher la courbe de score (ici moyennée sur 10 iterations successives)</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+<span class="n">score_c</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="n">full</span><span class="p">((</span><span class="mi">10</span><span class="p">,),</span> <span class="mi">1</span><span class="o">/</span><span class="mi">10</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s">"same"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">score_c</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span></code></pre></figure>
+
+<p><img src="/assets/qlearning2/courbescore.png" alt="Courbe des scores" /></p>
+
+<p>Nous pouvons maintenant afficher le résultat. On voit que l’agent a appris à éviter de passer à coté du trou : il préfère prendre le chemin le plus long, où la probabilité de tomber dedans
+est nulle.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">state</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">_get_state</span><span class="p">()</span>
+<span class="n">done</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">g</span><span class="p">.</span><span class="k">print</span><span class="p">()</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
+    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># on selectionne l'action avec rand=False pour choisir toujours la meilleure
+</span>    <span class="n">action</span> <span class="o">=</span> <span class="n">trainer</span><span class="p">.</span><span class="n">get_best_action</span><span class="p">(</span><span class="n">g</span><span class="p">.</span><span class="n">_get_state</span><span class="p">(),</span> <span class="n">rand</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">next_state</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="n">g</span><span class="p">.</span><span class="k">print</span><span class="p">()</span></code></pre></figure>
+
+<p><img src="/assets/qlearning2/capture.gif" alt="Le jeu" /></p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Vous pouvez retrouver tout le code décrit dans cet article sur <a href="https://github.com/cdancette/machine-learning-projects/blob/master/q-learning/q-learning-blog-part2.ipynb">github</a>.</p>
+
+<p>Nous avons donc appris comment définir un réseau de neurone simple, à l’entrainer, et à l’utiliser sur des nouveaux examples.</p>
+
+<p>Dans une prochaine partie, nous verrons comment utiliser notre algorithme dans un jeu plus compliqué, 
+où le terrain peut changer à chaque partie. L’algorithme devra alors apprendre à généraliser de manière 
+à éviter les obstacles, et à trouver le meilleur chemin pour arriver à son objectif.</p>
+
+<p>Cela nous ammenera à modifier la manière dont les données sont encodées, ainsi qu’à de nouveaux concepts comme le <em>batching</em> et l’<em>experience replay</em>  pour améliorer les résultats.</p>
+
+<p>Si vous avez aimé cet article, n’hésitez pas à m’envoyer un <a href="mailto:contact@cdancette.fr">mail</a>.</p>
+
+  </article>
+
+  
+
+</div>
+
+    </div>
+
+    <!-- Footer -->
+
+    
+<footer class="sticky-bottom mt-5">
+  <div class="container">
+    &copy; Copyright 2020 Corentin Dancette.
+    Powered sort_by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
+
+    
+  </div>
+</footer>
+
+
+
+  </body>
+
+  <!-- Load Core and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js" integrity="sha256-OH05DFHUWzr725HmuHo3pnuvUUn+TJuj8/Qz9xytFEw=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/js/mdb.min.js"  integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<!-- Load Common JS -->
+<script src="/assets/js/common.js"></script>
+
+<!-- Code Syntax Highlighting -->
+<link rel="stylesheet" href="https://gitcdn.link/repo/jwarby/jekyll-pygments-themes/master/github.css" />
+
+
+<!-- Load KaTeX -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" integrity="sha256-V8SV2MO1FUb63Bwht5Wx9x6PVHNa02gv8BgH/uH3ung=" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous"></script>
+<script src="/assets/js/katex.js"></script>
+
+
+
+<!-- Load Mansory & imagesLoaded -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js" integrity="" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+
+<!-- Project Cards Layout -->
+<script type="text/javascript">
+  // Init Masonry
+  var $grid = $('.grid').masonry({
+    gutter: 10,
+    horizontalOrder: true,
+    itemSelector: '.grid-item',
+  });
+  // layout Masonry after each image loads
+  $grid.imagesLoaded().progress( function() {
+    $grid.masonry('layout');
+  });
+</script>
+
+
+
+
+
+
+
+</html>

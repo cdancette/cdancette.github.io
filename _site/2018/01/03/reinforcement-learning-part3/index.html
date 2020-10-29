@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Corentin Dancette | Reinforcement learning en python sur un jeu simple grâce au Q-learning, Partie 3</title>
+<meta name="description" content="A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
+">
+
+<!-- Bootstrap & MDB -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/css/mdb.min.css" integrity="sha256-/SwJ2GDcEt5382i8zqDwl36VJGECxEoIcBIuoLmLR4g=" crossorigin="anonymous" />
+
+<!-- Fonts & Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"  integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons">
+
+<!-- Styles -->
+<link rel="shortcut icon" href="/assets/img/favicon.ico">
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<link rel="canonical" href="/2018/01/03/reinforcement-learning-part3/">
+
+<!-- Open Graph -->
+
+
+  </head>
+
+  <body class="fixed-top-nav sticky-bottom-footer">
+
+    <!-- Header -->
+
+    <header>
+
+    <!-- Nav Bar -->
+    <nav id="navbar" class="navbar navbar-light bg-white navbar-expand-sm fixed-top">
+    <div class="container">
+      
+        
+        <a class="navbar-brand title font-weight-lighter" href="/"><span class="font-weight-bold">Corentin</span> Dancette</a>
+      
+      <!-- Navbar Toogle -->
+      <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+      <div class="collapse navbar-collapse text-right" id="navbarNav">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">
+              about
+              
+            </a>
+          </li>
+          <ul class="navbar-nav ml-auto flex-nowrap">
+            <!-- About -->
+            <li class="nav-item ">
+              <a class="nav-link" href="/#publications">
+                publications
+                
+              </a>
+            </li>
+          
+          <!-- Blog -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/blog/">
+              blog
+              
+            </a>
+          </li>
+          
+          <!-- Other pages -->
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/projects/">
+                projects
+                
+              </a>
+          </li>
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/teaching/">
+                teaching
+                
+              </a>
+          </li>
+          
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+</header>
+
+
+    <!-- Content -->
+
+    <div class="container mt-5">
+      
+
+<div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Reinforcement learning en python sur un jeu simple grâce au Q-learning, Partie 3</h1>
+    <p class="post-meta">January 3, 2018</p>
+  </header>
+
+  <article class="post-content">
+    <p><img src="/assets/qlearning2/capture.gif" alt="Le jeu" /></p>
+
+<p>Cet article est la suite de <a href="/2017/08/20/reinforcement-learning-part2/">/2017/08/20/reinforcement-learning-part2/</a>.</p>
+
+<p>Dans cette troisième partie, nous allons étudier une variante plus complexe du jeu précédent : le terrain est modifié à chaque partie. Nous n’allons pas pouvoir stocker et visiter tous les états pour entrainer l’agent. Le réseau de neurone apprendra alors a généraliser, pour obtenir une fonction de valeur Q convenable.</p>
+
+<!-- more -->
+
+<p>Tous les codes présentés ici peuvent être trouvés  sur <a href="https://github.com/cdancette/machine-learning-projects/blob/master/q-learning/q-learning-blog-part3.ipynb">github</a>.</p>
+
+<h1 id="plan">Plan</h1>
+
+<ul>
+  <li><a href="/2017/08/18/reinforcement-learning-part1/">Partie 1</a> : jeu statique, le terrain ne change pas, utilisation d’un tableau de valeurs (sans réseau de neurones).</li>
+  <li><a href="/2017/08/20/reinforcement-learning-part2/">Partie 2</a> : Jeu statique, le terrain ne change pas, utilisation d’un réseau de neurone pour approximer la fonction de valeurs Q.</li>
+  <li><strong>Partie 3</strong> : Jeu dynamique, le terrain change à chaque partie : utilisation d’un réseau de neurones.</li>
+</ul>
+
+<h1 id="le-jeu">Le jeu</h1>
+
+<p>Le jeu est identique aux versions précédentes. Une seule différence : nous allons regénérer un terrain à chaque nouvelle partie. Ainsi
+Le seul changement sera la manière d’encoder l’état du jeu.</p>
+
+<p>Ainsi, la fonction <code class="language-plaintext highlighter-rouge">get_state</code> sera réécrite de la manière suivante :</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python">    <span class="k">def</span> <span class="nf">_get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">position</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">alea</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="p">.</span><span class="n">_get_grille</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span>
+                    <span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">hole</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">block</span><span class="p">]],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">64</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_get_grille</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span></code></pre></figure>
+
+<p>Ici, au lieu de renvoyer un tableau de taille 16 contenant juste la position de notre agent marqué par un 1, nous devons également indiquer la position des éléments sur le terrain.</p>
+
+<p>Les éléments à indiquer sont : notre position <code class="language-plaintext highlighter-rouge">self.position</code>, la position de l’arrivée <code class="language-plaintext highlighter-rouge">self.end</code>, la position du trou <code class="language-plaintext highlighter-rouge">self.hole</code>, et la position du mur <code class="language-plaintext highlighter-rouge">self.block</code>.</p>
+
+<p>Au lieu d’un tableau de taille 16 contenant des 0, avec un 1 pour marquer la position de l’agent, nous avons maintenant 4 tableaux similaires. L’état du jeu sera la concaténation de ces 4 tableaux (obtenu avec <code class="language-plaintext highlighter-rouge">np.reshape</code>).
+L’état est donc un tableau de taille 4x16 = 64 cases, et il contiendra quatre 1, et les autres éléments seront des 0.</p>
+
+<p>Ici pour encoder les états, nous avons utilisé ce qui est appelé un <a href="https://en.wikipedia.org/wiki/One-hot">One Hot encoder</a> : Pour chaque élément, il y a 16 possibilités, et on encode cela en utilisant un tableau de 16 cases, en mettant un 1 pour représenter la position de l’élément, et 0 dans les autres cases. Ce n’est pas une représentation très compacte : les 16 cases possibles peuvent être encodées sur 4 bits, il nous suffirait donc de 4 cases dans notre tableau pour encoder la position de chaque élément. Mais le réseau devrait alors apprendre à décoder cette représentation, ce qui nécessiterait certainement un modèle plus complexe, donc un entrainement plus long, ou bien une architecture plus grosse. L’encodage que nous avons choisi ici est extrèmement simple (mais il n’est pas le plus compact possible, toutes les entrées possibles ne sont pas du tout utilisés), et sera utilisé très facilement par le réseau de neurone.</p>
+
+<h2 id="un-problème-plus-complexe">Un problème plus complexe</h2>
+
+<p>On peut voir que le problème est plus complexe que celui de la partie précédente : au lieu de 4 états différents, encodés dans un tableau de taille 16, on a 16x15x14x13 = 43680 états possibles. Il serait difficile d’appliquer la méthode de la première partie de ce tutoriel (stocker les Q-values dans un tableau). L’utilisation d’un réseau de neurone, comme nous l’avons vu dans la partie 2, nous sera alors très utile ici. Avec un réseau légèrement plus complexe, nous allons pouvoir résoudre ce problème.
+Néanmoins, l’entrainement est plus compliqué ici. Pour garantir la convergence de la méthode classique du Q-learning, l’agent devrait parcourir tous les états un grand nombre de fois. Or ici, notre espace d’état étant très grand, l’agent ne parcourera surement pas la totalité de ces états de nombreuses fois. C’est pour cela que nous attendons de notre réseau de neurone qu’il généralise, pour appliquer ses connaissances acquises à l’entrainement sur des états qu’il n’a jamais rencontré. Il aurait été impossible de généraliser avec la méthode de l’article 1, en utilisant un tableau.</p>
+
+<p>Nous allons évoquer plusieurs concepts très utilisés en machine learning et en reinforcement learning : le principe du <em>batch</em>, et celui de l’<em>experience replay</em>.</p>
+
+<h2 id="batch">Batch</h2>
+
+<p>En machine learning, pour entrainer nos réseaux de neurones, on utilise généralement des <em>batch</em> de données. C’est à dire qu’au lieu de ne donner qu’un seul exemple, avec son label, on lui donne à chaque fois un nombre fixe d’exemples (par exemple 10 samples).
+Cela permet à l’algorithme de gradient de choisir une direction qui ne dépendra pas que d’un seul exemple, qui pourrait être trop précis et ne pas améliorer le score global, mais plutôt une direction moyenne, qui sera certainement plus bénéfique au réseau de manière générale.</p>
+
+<p><img src="/assets/qlearning3/batches.png" alt="Un batch" /></p>
+
+<p>Le batching est également utilisé quand le dataset entier ne rentre pas dans la RAM / la mémoire du GPU. Il est alors nécéssaire de diviser le dataset en batches, que l’on va charger en mémoire pour entrainer le réseau, puis décharger. La contrainte est alors que la taille d’un batch ne dépasse pas la taille de la mémoire (c’est surtout un problème en traitement d’image, ou les données ont une taille importante).</p>
+
+<p>Le batching est utilisé avec l’algorithme de <em>stochastig gradient descent</em> ou descente de gradiant stochastique, en remplaçant un exemple par un petit nombre d’exemples (ou bien avec d’autres algorithmes dérivés tels que Adam).</p>
+
+<p>Le batching est très souvent utilisé en deep learning. Toutefois en reinforcement learning, cela paraît plus compliqué, puisque nous n’avons qu’un exemple à chaque action effectuée. Il est donc impossible à priori d’utiliser cette méthode. Nous allons voir que la méthode de l’<em>experience replay</em> permet de résoudre ce problème</p>
+
+<h2 id="experience-replay">Experience Replay</h2>
+
+<p>L’experience replay est une méthode spécifique au reinforcement learning (contrairement au batching qui est utilisé très souvent en deep learning).</p>
+
+<p>Il nous permet en fait d’utiliser des batch pendant l’entrainement de notre agent, au lieu de l’entrainer à chaque mouvement sur les données qu’il vient de recevoir.</p>
+
+<p>Il s’agit de stocker à chaque mouvement les paramètres d’entrainement (état de départ, action, état d’arrivée, récompense, fin du jeu) dans une mémoire, au lieu d’entrainer notre réseau de neurone dessus. Et ensuite, régulièrement, on va piocher un batch dans cette mémoire (c’est à dire un certain nombre d’exemples), au hasard, et on va entrainer notre réseau sur ce batch.</p>
+
+<p>Cela permet d’éviter un trop grand va-et-vient des poids du réseau. En effet, le réseau oublie ce qu’il vient d’apprendre si on lui donne des exemples successifs qui ont des indications contraires (il n’arrive pas à généraliser, et va osciller). En lui donnant un batch en effet, la backpropagation va choisir une direction moyenne pour optimiser les poids du réseau afin de faire diminuer l’erreur.</p>
+
+<p>Cela va également nous permettre de voir plusieurs fois des situations passées. Et les exemples trop vieux seront vidés de la mémoire (on limite la taille de la mémoire en nombre d’exemples).</p>
+
+<p><img src="/assets/qlearning3/experiencereplay.png" alt="Un batch" /></p>
+
+<p>Il existe de nombreuses améliorations possibles. Par exempe,  le *Prioritized experience replay (<a href="https://arxiv.org/pdf/1511.05952.pdf">article</a> [1] ou <a href="https://jaromiru.com/2016/11/07/lets-make-a-dqn-double-learning-and-prioritized-experience-replay/">blog</a>), ou on voit les situations les plus importantes en priorité, au lieu tirer des exemples au hasard dans la mémoire.</p>
+
+<h1 id="code">Code</h1>
+
+<h3 id="paramètres-du-trainer">Paramètres du trainer</h3>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers.core</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Dropout</span><span class="p">,</span> <span class="n">Activation</span>
+<span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="kn">import</span> <span class="n">RMSprop</span><span class="p">,</span> <span class="n">Adam</span><span class="p">,</span> <span class="n">sgd</span>
+<span class="kn">from</span> <span class="nn">keras.layers.advanced_activations</span> <span class="kn">import</span> <span class="n">LeakyReLU</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="k">class</span> <span class="nc">Trainer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">epsilon_decay</span><span class="o">=</span><span class="mf">0.9999</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">memory_size</span><span class="o">=</span><span class="mi">3000</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state_size</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">action_size</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon_min</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon_decay</span> <span class="o">=</span> <span class="n">epsilon_decay</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">memory_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        
+        <span class="bp">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isfile</span><span class="p">(</span><span class="s">"model-"</span> <span class="o">+</span> <span class="n">name</span><span class="p">):</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s">"model-"</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">state_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">action_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'linear'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s">'mse'</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">Adam</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">learning_rate</span><span class="p">))</span>
+        
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span></code></pre></figure>
+
+<p>Les paramètres sont assez similaires à ceux de l’article p’écédent.
+On a juste ajouté une nouvelle couche à notre réseau (pour lui donner une meilleur force de représentation des données).</p>
+
+<p>La ligne qui change est celle-ci :</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python">        <span class="bp">self</span><span class="p">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">memory_size</span><span class="p">)</span></code></pre></figure>
+
+<p><code class="language-plaintext highlighter-rouge">memory</code> est la structure de données qui va nous servir de mémoire pour stocker nos ensembles (state, action, new_state, reward). C’est grâce à cette mémoire que l’on peut faire de l’experience replay. A chaque action, on va remplir cette mémoire au lieu d’entrainer, puis on va régulièrement piocher aléatoirement des samples dans cette mémoire, pour lancer l’entrainement sur un batch de données.
+Pour stocker, on utilise la structure <code class="language-plaintext highlighter-rouge">collections.deque</code> de python. Il s’agit d’une queue qui peut avoir une taille limitée, qui va supprimer automatiquement les éléments ajoutés les premiers lorsque la taille limite est atteinte.</p>
+
+<h3 id="apprentissage">Apprentissage</h3>
+
+<p>Nous allons remplacer la fonction <strong>train</strong> par une fonction <strong>remember</strong>
+Au lieu de lancer une étape de backpropagation, elle va tout simplement stocker ce que l’on vient de voir, dans une queue (une structure de données qui va supprimer les éléments entrés en premier).</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Trainer</span><span class="p">:</span>
+    
+    <span class="p">...</span>
+    
+    <span class="k">def</span> <span class="nf">remember</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">])</span>
+    </code></pre></figure>
+
+<p>Et enfin, il nous faut une fonction <code class="language-plaintext highlighter-rouge">replay</code> qui va piocher dans la mémoire, et donner ces données aux réseau de neurone.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python">    <span class="k">def</span> <span class="nf">replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">memory</span><span class="p">))</span>
+
+        <span class="n">minibatch</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">state_size</span><span class="p">))</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">action_size</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">minibatch</span><span class="p">):</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">next_state</span><span class="p">))</span>
+
+            <span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span></code></pre></figure>
+
+<p>Ainsi, ici, on va utiliser <code class="language-plaintext highlighter-rouge">random.sample</code> pour piocher un certain nombres d’éléments aléatoirement dans la mémoire.
+On crée alors nos entrées et sorties dans le bon format pour le réseau de neurone, similairement à la fonction <code class="language-plaintext highlighter-rouge">train</code> de l’article précédent. La différence est qu’ici, on crée un batch de plusieurs samples, au lieu de n’en donner qu’un (on voit que la dimension des input et output est <code class="language-plaintext highlighter-rouge">(batch_size, state_size)</code>, alors qu’elle n’avait qu’une dimension précedemment.</p>
+
+<h2 id="récapitulatif-du-code-du-trainer">Récapitulatif du code du trainer</h2>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># defining the neural network
+</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers.core</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Dropout</span><span class="p">,</span> <span class="n">Activation</span>
+<span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="kn">import</span> <span class="n">RMSprop</span><span class="p">,</span> <span class="n">Adam</span><span class="p">,</span> <span class="n">sgd</span>
+<span class="kn">from</span> <span class="nn">keras.layers.advanced_activations</span> <span class="kn">import</span> <span class="n">LeakyReLU</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+
+<span class="k">class</span> <span class="nc">Trainer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">epsilon_decay</span><span class="o">=</span><span class="mf">0.9999</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">memory_size</span><span class="o">=</span><span class="mi">3000</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state_size</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">action_size</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon_min</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon_decay</span> <span class="o">=</span> <span class="n">epsilon_decay</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">memory_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        
+        <span class="bp">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isfile</span><span class="p">(</span><span class="s">"model-"</span> <span class="o">+</span> <span class="n">name</span><span class="p">):</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s">"model-"</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">state_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">action_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'linear'</span><span class="p">))</span>
+            <span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s">'mse'</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">Adam</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">learning_rate</span><span class="p">))</span>
+        
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        
+    <span class="k">def</span> <span class="nf">decay_epsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">epsilon</span> <span class="o">*=</span> <span class="bp">self</span><span class="p">.</span><span class="n">epsilon_decay</span>
+    
+    <span class="k">def</span> <span class="nf">get_best_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">rand</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">rand</span> <span class="ow">and</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="p">.</span><span class="n">epsilon</span><span class="p">:</span>
+            <span class="c1"># The agent acts randomly
+</span>            <span class="k">return</span> <span class="n">random</span><span class="p">.</span><span class="n">randrange</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">action_size</span><span class="p">)</span>
+        
+        <span class="c1"># Predict the reward value based on the given state
+</span>        <span class="n">act_values</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+
+        <span class="c1"># Pick the action based on the predicted reward
+</span>        <span class="n">action</span> <span class="o">=</span>  <span class="n">np</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">act_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  
+        <span class="k">return</span> <span class="n">action</span>
+
+    <span class="k">def</span> <span class="nf">remember</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">memory</span><span class="p">))</span>
+
+        <span class="n">minibatch</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">state_size</span><span class="p">))</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">action_size</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">minibatch</span><span class="p">):</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">next_state</span><span class="p">))</span>
+
+            <span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s">'model'</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">+=</span> <span class="s">'-'</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">+=</span> <span class="s">'-'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">+=</span> <span class="s">'-'</span> <span class="o">+</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="lancer-lentrainement">Lancer l’entrainement</h3>
+
+<p>La fonction d’entrainement est un peu plus complexe, puisqu’on va executer une première partie ou l’on va remplir en partie la mémoire. Cela nous permettra de pouvoir créer des batch avec assez de données plus rapidement. Cette phase se déroule entre les lignes 13 et 25 du code ci-dessous.</p>
+
+<p>La deuxième phase est l’entrainement du réseau. On lance un entrainement à chaque 100 mouvements. On pourrait essayer d’en lancer plus ou moins souvent, l’apprentissage en serait surement impacté au niveau rapidité de convergence et qualité du minimum local. En général, lorsqu’un algorithme converge trop vite, le minimum local sera moins bon.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">time</span> 
+
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">episodes</span><span class="p">,</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">wrong_action_p</span><span class="p">,</span> <span class="n">alea</span><span class="p">,</span> <span class="n">collecting</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">snapshot</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">Game</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">wrong_action_p</span><span class="p">,</span> <span class="n">alea</span><span class="o">=</span><span class="n">alea</span><span class="p">)</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">global_counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">losses</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">epsilons</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># we start with a sequence to collect information, without learning
+</span>    <span class="k">if</span> <span class="n">collecting</span><span class="p">:</span>
+        <span class="n">collecting_steps</span> <span class="o">=</span> <span class="mi">10000</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Collecting game without learning"</span><span class="p">)</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">steps</span> <span class="o">&lt;</span> <span class="n">collecting_steps</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="n">done</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
+                <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">get_random_action</span><span class="p">()</span>
+                <span class="n">next_state</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                <span class="n">trainer</span><span class="p">.</span><span class="n">remember</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">next_state</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"Starting training"</span><span class="p">)</span>  
+    <span class="n">global_counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">episodes</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">generate_game</span><span class="p">()</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
+            <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">global_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">trainer</span><span class="p">.</span><span class="n">get_best_action</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">trainer</span><span class="p">.</span><span class="n">decay_epsilon</span><span class="p">()</span>
+            <span class="n">next_state</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">next_state</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">next_state</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="n">reward</span>
+            <span class="n">trainer</span><span class="p">.</span><span class="n">remember</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>  <span class="c1"># ici on enregistre le sample dans la mémoire
+</span>            <span class="n">state</span> <span class="o">=</span> <span class="n">next_state</span>
+            <span class="k">if</span> <span class="n">global_counter</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">trainer</span><span class="p">.</span><span class="n">replay</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>   <span class="c1"># ici on lance le 'replay', c'est un entrainement du réseau
+</span>                <span class="n">losses</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'loss'</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="n">scores</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+                <span class="n">epsilons</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">trainer</span><span class="p">.</span><span class="n">epsilon</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">steps</span> <span class="o">&gt;</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="o">%</span> <span class="mi">200</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"episode: {}/{}, moves: {}, score: {}, epsilon: {}, loss: {}"</span>
+                  <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">episodes</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">trainer</span><span class="p">.</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">losses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">%</span> <span class="n">snapshot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">trainer</span><span class="p">.</span><span class="n">save</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s">'iteration-%s'</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">scores</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">epsilons</span></code></pre></figure>
+
+<p>On peut alors lancer l’entrainement</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>trainer = Trainer(learning_rate=0.001, epsilon_decay=0.999995)
+scores, losses, epsilons = train(35000, trainer, 0.1, True, snapshot=2500)
+
+&gt; Starting training
+&gt; episode: 0/35000, moves: 2, score: 9, epsilon: 0.9999900000249999, loss: 0
+&gt; episode: 200/35000, moves: 3, score: -12, epsilon: 0.9822592094161423, loss: 2.4857234954833984
+&gt; episode: 400/35000, moves: 35, score: -44, epsilon: 0.9650068405161227, loss: 1.1590536832809448
+&gt; episode: 600/35000, moves: 11, score: -20, epsilon: 0.9500077578972453, loss: 0.09752733260393143
+...
+</code></pre></div></div>
+
+<p>Puis affichons les courbes de loss</p>
+
+<p><img src="/assets/qlearning3/graph_score_epsilon.png" alt="scores" /></p>
+
+<p>On voit très clairement que notre réseau a appris à jouer de manière satisfaisante. Le score moyen en fin d’apprentissage est légèrement au dessus de 0, ce qui veut dire que l’agent arrive à la fin en moyenne en moins de 10 coups.</p>
+
+<h2 id="quelques-parties-intéressantes">Quelques parties intéressantes</h2>
+
+<p>Plusieurs parties assez simples
+<img src="/assets/qlearning3/game-4.gif" alt="Le jeu" /> 
+<img src="/assets/qlearning3/game-5.gif" alt="Le jeu" /> 
+<img src="/assets/qlearning3/game-6.gif" alt="Le jeu" /></p>
+
+<p>Et celle-ci ou l’agent fait plusieurs erreurs mais arrive eventuellement à la fin 
+<img src="/assets/qlearning3/game-wrong.gif" alt="Le jeu" /></p>
+
+<p>Si vous avez aimé cet article, n’hésitez pas à m’envoyer un <a href="mailto:contact@cdancette.fr">mail</a>.</p>
+
+<h2 id="resources-en-anglais">Resources (en anglais)</h2>
+
+<ul>
+  <li>[1] <a href="https://arxiv.org/abs/1511.05952">Prioritized Experience Replay, Tom Schaul, John Quan, Ioannis Antonoglou and David Silver,
+Google DeepMind</a></li>
+  <li><a href="http://neuro.cs.ut.ee/demystifying-deep-reinforcement-learning/">http://neuro.cs.ut.ee/demystifying-deep-reinforcement-learning/</a></li>
+  <li><a href="http://outlace.com/rlpart3.html">http://outlace.com/rlpart3.html</a></li>
+  <li><a href="https://mpatacchiola.github.io/blog/2016/12/09/dissecting-reinforcement-learning.html">https://mpatacchiola.github.io/blog/2016/12/09/dissecting-reinforcement-learning.html</a></li>
+  <li><a href="https://medium.com/@awjuliani/super-simple-reinforcement-learning-tutorial-part-1-fd544fab149">https://medium.com/@awjuliani/super-simple-reinforcement-learning-tutorial-part-1-fd544fab149</a></li>
+</ul>
+
+  </article>
+
+  
+
+</div>
+
+    </div>
+
+    <!-- Footer -->
+
+    
+<footer class="sticky-bottom mt-5">
+  <div class="container">
+    &copy; Copyright 2020 Corentin Dancette.
+    Powered sort_by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
+
+    
+  </div>
+</footer>
+
+
+
+  </body>
+
+  <!-- Load Core and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js" integrity="sha256-OH05DFHUWzr725HmuHo3pnuvUUn+TJuj8/Qz9xytFEw=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/js/mdb.min.js"  integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<!-- Load Common JS -->
+<script src="/assets/js/common.js"></script>
+
+<!-- Code Syntax Highlighting -->
+<link rel="stylesheet" href="https://gitcdn.link/repo/jwarby/jekyll-pygments-themes/master/github.css" />
+
+
+<!-- Load KaTeX -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" integrity="sha256-V8SV2MO1FUb63Bwht5Wx9x6PVHNa02gv8BgH/uH3ung=" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous"></script>
+<script src="/assets/js/katex.js"></script>
+
+
+
+<!-- Load Mansory & imagesLoaded -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js" integrity="" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+
+<!-- Project Cards Layout -->
+<script type="text/javascript">
+  // Init Masonry
+  var $grid = $('.grid').masonry({
+    gutter: 10,
+    horizontalOrder: true,
+    itemSelector: '.grid-item',
+  });
+  // layout Masonry after each image loads
+  $grid.imagesLoaded().progress( function() {
+    $grid.masonry('layout');
+  });
+</script>
+
+
+
+
+
+
+
+</html>
