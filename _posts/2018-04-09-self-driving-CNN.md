@@ -568,7 +568,14 @@ env.render()
 
 **Après le lancement,** il faut contrôler la vitesse de la voiture avec les touches haut et bas du clavier. La direction sera choisie par le réseau de neurone
 
-![car-running](/assets/self-driving-1/car-running.gif)
+
+
+<div class="row mt-3 justify-content-center">
+    <div class="col-8 mt-3 mb-3 mt-md-0">
+        <img class="img-fluid rounded z-depth-1" src="{{ site.baseurl }}/assets/self-driving-1/car-running.gif">
+    </div>
+</div>
+
 
 ## Conclusion
 Notre réseau reconnait les formes pour maintenir la voiture sur la trajectoire voulue. 
