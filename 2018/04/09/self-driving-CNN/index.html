@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Corentin Dancette | [Tutoriel] Conduite autonome par imitation grâce à un réseau de convolution (CNN)</title>
+<meta name="description" content="A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
+">
+
+<!-- Bootstrap & MDB -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/css/mdb.min.css" integrity="sha256-/SwJ2GDcEt5382i8zqDwl36VJGECxEoIcBIuoLmLR4g=" crossorigin="anonymous" />
+
+<!-- Fonts & Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"  integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons">
+
+<!-- Styles -->
+<link rel="shortcut icon" href="/assets/img/favicon.ico">
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<link rel="canonical" href="/2018/04/09/self-driving-CNN/">
+
+<!-- Open Graph -->
+
+
+  </head>
+
+  <body class="fixed-top-nav sticky-bottom-footer">
+
+    <!-- Header -->
+
+    <header>
+
+    <!-- Nav Bar -->
+    <nav id="navbar" class="navbar navbar-light bg-white navbar-expand-sm fixed-top">
+    <div class="container">
+      
+        
+        <a class="navbar-brand title font-weight-lighter" href="/"><span class="font-weight-bold">Corentin</span> Dancette</a>
+      
+      <!-- Navbar Toogle -->
+      <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+      <div class="collapse navbar-collapse text-right" id="navbarNav">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">
+              about
+              
+            </a>
+          </li>
+          <ul class="navbar-nav ml-auto flex-nowrap">
+            <!-- About -->
+            <li class="nav-item ">
+              <a class="nav-link" href="/#publications">
+                publications
+                
+              </a>
+            </li>
+          
+          <!-- Blog -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/blog/">
+              blog
+              
+            </a>
+          </li>
+          
+          <!-- Other pages -->
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/projects/">
+                projects
+                
+              </a>
+          </li>
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/teaching/">
+                teaching
+                
+              </a>
+          </li>
+          
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+</header>
+
+
+    <!-- Content -->
+
+    <div class="container mt-5">
+      
+
+<div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">[Tutoriel] Conduite autonome par imitation grâce à un réseau de convolution (CNN)</h1>
+    <p class="post-meta">April 9, 2018</p>
+  </header>
+
+  <article class="post-content">
+    <div class="row mt-3 justify-content-center">
+    <div class="col-6 mt-3 mb-3 mt-md-0">
+        <img class="img-fluid rounded z-depth-1" src="/assets/self-driving-1/car-running.gif" />
+    </div>
+</div>
+
+<!-- 
+TODO
+
+- expliquer le réseau de convolution 
+- quel modèle choisir ? Expliquer les loss ?
+ -->
+<p>Nous allons appliquer un algorithme d’apprentissage supervisé (réseaux de convolution), pour commander la direction d’une voiture dans une simulation 2D: <a href="https://gym.openai.com/envs/CarRacing-v0/">https://gym.openai.com/envs/CarRacing-v0/</a>. Nous allons présenter le fonctionnement d’un réseau de convolution, comment créer le dataset et l’utiliser pour l’entrainement de notre réseau, puis comment utiliser gym pour récupérer la sortie de notre réseau de neurone afin de contrôler la simulation.</p>
+
+<!-- more -->
+
+<p>L’idée générale que nous allons utiliser est celui du classifieur supervisé. Nous allons entrainer un réseau de neurone convolutionel à classifier des images du jeu, selon trois labels : gauche, droite et tout droit. Nous convertirons ensuite ces commandes en instructions pour le simulateur, qui les executera.</p>
+
+<p>Nous allons donc voir toutes les étapes nécessaires : Création du dataset d’entrainement, Apprentissage du réseau de neurone, et utilisation du modèle entrainé pour contrôler la voiture.</p>
+
+<p>Tout le code de ce tutoriel est disponible ici : <a href="https://github.com/cdancette/supervised-self-driving">https://github.com/cdancette/supervised-self-driving</a>.</p>
+
+<hr />
+
+<h2 id="installation-des-packages-nécessaires">Installation des packages nécessaires</h2>
+
+<p>Il nous faut certains packages pour faire fonctionner notre réseau de neurone.</p>
+
+<h3 id="installation-de-gym">Installation de gym</h3>
+
+<p>Suivre les instructions sur <a href="https://github.com/openai/gym#installation">https://github.com/openai/gym#installation</a>.</p>
+
+<p>Résumé des instructions :</p>
+<ul>
+  <li>cloner le repo gym : <code class="language-plaintext highlighter-rouge">git clone https://github.com/openai/gym.git</code></li>
+  <li><code class="language-plaintext highlighter-rouge">cd gym</code></li>
+  <li>installation gym, with the box2d environments : <code class="language-plaintext highlighter-rouge">pip install -e '.[box2d]'</code></li>
+</ul>
+
+<h3 id="installation-de-pytorch">Installation de pytorch</h3>
+<p>Pytorch est le framework de deep learning que nous allons utiliser. Il permet de construire des réseaux de neurones très simplement.</p>
+
+<p>Suivre les instructions sur <a href="http://pytorch.org/">http://pytorch.org/</a>.</p>
+
+<h2 id="lenvironnement">L’environnement</h2>
+
+<p>Pour ce tutorial, nous allons utiliser la librairie <a href="https://github.com/openai/gym">gym</a> développée par OpenAI. Elle fournit des environnements (des jeux simples) pour développer des algorithmes d’apprentissage par renforcement.  Vous pouvez voir la liste des environnements ici : <a href="https://gym.openai.com/envs/">https://gym.openai.com/envs/</a>.</p>
+
+<p>L’environnement que nous allons utiliser est CarRacing-v0 (<a href="https://gym.openai.com/envs/CarRacing-v0/">https://gym.openai.com/envs/CarRacing-v0/</a>).
+Il s’agit de conduire une voiture sur un circuit, l’objectif étant d’avancer en restant sur la piste, qui contient de nombreux virages. L’entrée de l’algorithme (l’état fourni par l’environnement) est uniquement l’image affichée par l’environnement : on voit la voiture, et le terrain autour d’elle.</p>
+
+<div class="row mt-3 justify-content-center">
+    <div class="col-6 mt-3 mb-3 mt-md-0">
+        <img class="img-fluid rounded z-depth-1" src="/assets/self-driving-1/car-racing.png" />
+    </div>
+</div>
+
+<p>Il s’agit ainsi de conduire la voiture en analysant cette image.</p>
+
+<p>Nous allons utiliser cette librairie de manière détournée : Elle est conçue pour faire du reinforcement learning. L’objectif est en principe d’utiliser les <em>rewards</em> (récompenses) fournies par l’environnement pour apprendre la stratégie optimale sans action de l’utilisateur. Ici, nous n’utiliserons pas ces récompenses.</p>
+
+<p>De plus, nous allons faire du <em>end-to-end learning</em>, ce qui veut dire que le réseau de neurone va nous donner en sortie de manière directe les commandes pour naviguer la voiture. Il ne s’agit pas d’un module de détection de route, qui sera ensuite analysé par un autre programme (la plupart des vrais systèmes de conduite autonome sont faits ainsi). Ici, le réseau de neurone prend en entrée la matrice du terrain, et sort une commande à executer (tourne à gauche, tourne à droite, continue tout droit), sans aucun programme intermédiaire.</p>
+
+<p>Pour utiliser l’environnement, il faut l’importer comme ceci :</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">gym</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="p">.</span><span class="n">make</span><span class="p">(</span><span class="s">'CarRacing-v0'</span><span class="p">).</span><span class="n">env</span>
+</code></pre></div></div>
+
+<p>On peut alors accéder à plusieurs fonctions utiles :</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">env.reset()</code> permet de redémarrer l’environnement</li>
+  <li><code class="language-plaintext highlighter-rouge">env.step(action)</code> permet d’effectuer l’action <code class="language-plaintext highlighter-rouge">action</code>. Cette fonction retourne un tuple <code class="language-plaintext highlighter-rouge">state, reward, done, info</code> contenant l’état du jeu après l’action, la récompense obetenue, <code class="language-plaintext highlighter-rouge">done</code> indique si le jeu est terminé, et <code class="language-plaintext highlighter-rouge">info</code> contient des données de debug.</li>
+  <li><code class="language-plaintext highlighter-rouge">env.render()</code> permet d’afficher la fenètre du jeu.</li>
+</ul>
+
+<p>Ici, l’état <code class="language-plaintext highlighter-rouge">state</code> qui sera renvoyé par <code class="language-plaintext highlighter-rouge">env.step(action)</code> est l’image affichée sur l’écran (la matrice des pixels). C’est cette donnée que l’on utilisera pour diriger notre voiture.</p>
+
+<p>On peut créer une simulation controlable avec les boutons de la souris de la manière suivante :</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">gym</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">imageio</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pyglet.window</span> <span class="kn">import</span> <span class="n">key</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="p">.</span><span class="n">make</span><span class="p">(</span><span class="s">'CarRacing-v0'</span><span class="p">).</span><span class="n">env</span>
+<span class="n">env</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">'__main__'</span><span class="p">:</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">key_press</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">mod</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">LEFT</span><span class="p">:</span>  <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">RIGHT</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">UP</span><span class="p">:</span>    <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">DOWN</span><span class="p">:</span>  <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mf">0.8</span>
+    <span class="k">def</span> <span class="nf">key_release</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">mod</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">LEFT</span>  <span class="ow">and</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==-</span><span class="mf">1.0</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">RIGHT</span> <span class="ow">and</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==+</span><span class="mf">1.0</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">UP</span><span class="p">:</span>    <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">DOWN</span><span class="p">:</span>  <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">env</span><span class="p">.</span><span class="n">viewer</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">on_key_press</span> <span class="o">=</span> <span class="n">key_press</span>
+    <span class="n">env</span><span class="p">.</span><span class="n">viewer</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">on_key_release</span> <span class="o">=</span> <span class="n">key_release</span>
+    <span class="n">env</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="p">.</span><span class="n">step</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">.</span><span class="n">render</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+            <span class="n">env</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="n">env</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+<p>Voir le fichier complet <a href="https://github.com/cdancette/supervised-self-driving/blob/master/manual_drive.py">manual_drive.py</a></p>
+
+<p>La voiture est contrôlable avec les flèches du clavir.</p>
+
+<p>Pour la suite, on veut entrainer un réseau de neurone qui prendra en entrée l’image du jeu, et en sortie, renverra la commande à envoyer (gauche, droite, tout droit). On va se concentrer dans un premier temps sur le contrôle de la <strong>direction</strong>. Le contrôle de la vitesse sera encore à effectuer avec les touches de la souris.</p>
+
+<h2 id="création-du-dataset">Création du dataset</h2>
+
+<p>La première étape pour entrainer notre réseau de neurone est de créer un jeu de données.
+Il s’agit d’enregistrer un ensemble d’images accompagnées de leur <em>label</em>. Nous allons représenter les actions possibles avec des entiers :</p>
+
+<ul>
+  <li>0 pour indiquer d’aller à gauche</li>
+  <li>1 pour indiquer d’aller à droite</li>
+  <li>2 pour indiquer d’aller tout droit</li>
+</ul>
+
+<p>Ainsi, on va enregistrer un ensemble de <strong>3000</strong> images dans un dossier, accompagnées d’un fichier <code class="language-plaintext highlighter-rouge">labels.txt</code> indiquant sur chaque ligne <code class="language-plaintext highlighter-rouge">&lt;chemin de l'image&gt; label</code>. Nous avons 3 labels, nous sauvegardons donc 1000 images de chaque label pour le training set. Pour le testing set, on va sauvegarder 600.</p>
+
+<p>On remplace la boucle du code précédent par ce code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">LEFT</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">RIGHT</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">GO</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ACTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">GO</span><span class="p">]</span>
+
+<span class="c1"># function to convert action array a to the action id
+</span><span class="k">def</span> <span class="nf">action_to_id</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span> <span class="k">return</span> <span class="n">LEFT</span>
+    <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span> <span class="k">return</span> <span class="n">RIGHT</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">GO</span>
+
+<span class="n">folder</span> <span class="o">=</span> <span class="s">"train_set"</span>
+
+<span class="n">images</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s">"images"</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s">"labels.txt"</span><span class="p">)</span>
+<span class="n">os</span><span class="p">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+<span class="n">samples_each_classes</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="c1"># dictionnaire comptant le nombre d'images déja enregistrées pour chaque classe
+</span><span class="n">samples_saved</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>  
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">file_labels</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="p">.</span><span class="n">step</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">action_id</span> <span class="o">=</span> <span class="n">action_to_id</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">samples_saved</span><span class="p">[</span><span class="n">action_id</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">samples_each_classes</span><span class="p">:</span>
+        <span class="n">samples_saved</span><span class="p">[</span><span class="n">action_id</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">samples_each_classes</span>
+        <span class="n">imageio</span><span class="p">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s">'images'</span><span class="p">,</span> <span class="s">'img-%s.jpg'</span> <span class="o">%</span> <span class="n">i</span> <span class="p">),</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">file_labels</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="s">'%s %s</span><span class="se">\n</span><span class="s">'</span> <span class="o">%</span> <span class="p">(</span><span class="s">'img-%s.jpg'</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="n">action_id</span><span class="p">))</span>
+        <span class="n">file_labels</span><span class="p">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">samples_saved</span><span class="p">)</span>
+    <span class="n">env</span><span class="p">.</span><span class="n">render</span><span class="p">()</span>
+</code></pre></div></div>
+<p>Voir le fichier complet <a href="https://github.com/cdancette/supervised-self-driving/blob/master/record_dataset.py">record_dataset.py</a></p>
+
+<p>Il faut créer un <em>train set</em>, qui servira a entrainer le réseau, et un <em>test set</em>, qui servira a évaluer ses performances pendant l’entrainement, pour savoir à quel moment l’interrompre. En effet, étant donné le nombre assez faible d’images que l’on utilise (3000), il y a un risque d’<em>overfitting</em>.[lien], c’est à dire que le réseau perdra en pouvoir de généralisation pour être meilleur dans les cas particuliers du <em>training set</em>. C’est une situation que l’on veut éviter, puisqu’on veut utiliser notre modèle par la suite dans des situations qu’il n’a pas vu. La technique d’interruption de l’entrainement avant la convergence est appelé <em>early stopping</em>.</p>
+
+<p>On lance donc deux fois le script en modifiant les variable <code class="language-plaintext highlighter-rouge">folder</code> (dossier d’arrivée du dataset), et <code class="language-plaintext highlighter-rouge">samples_each_classes</code> (nombre d’exemples que l’on souhaite enregistrer).</p>
+
+<h2 id="entrainement-du-modèle-avec-pytorch">Entrainement du modèle avec pytorch</h2>
+
+<p>Pytorch est une librairie python de calcul matriciel et de deep learning. Elle consiste d’une part en un équivalent de numpy, mais utilisable à la fois sur CPU et sur GPU. Et d’autre part, en une librairie qui permet de calculer le gradiant de chaque opération effectuée sur les données, de manière à appliquer l’algorithme de backpropagation (voir le post (/2017/10/08/neural-nets/), à la base de l’entrainement des réseaux de neurones. Pytorch possède également un ensemble de modules à assembler, ce qui permet de créer très simplement des réseaux de neurones.</p>
+
+<p>Dans pytorch, l’objet de base est le <code class="language-plaintext highlighter-rouge">module</code>. Chaque module est une fonction, ou un assemblage de fonctions pytorch, qui prend en entrée des Tenseurs (matrices contenant des données), et ressort un autre tenseur. L’ensemble des opérations effectuées dans ce module sera enregistré, car le graphe d’opération est nécessaire pour l’algorithme de backpropagation.</p>
+
+<h3 id="définition-du-modèle">Définition du modèle</h3>
+
+<p>On définit notre modèle comme ceci :</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">CustomModel</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="s">"""
+    from alexnet
+    """</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CustomModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">).</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="n">num_classes</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">convnet</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">576</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">convnet</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">.</span><span class="n">view</span><span class="p">(</span><span class="nb">input</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">classifier</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+
+</code></pre></div></div>
+<p>Voir le fichier complet <a href="https://github.com/cdancette/supervised-self-driving/blob/master/model.py">model.py</a></p>
+
+<p>Ce modèle est inspiré de l’architecture d’AlexNet[lien], un des premiers grand succès des réseaux de neurone pour la classification d’images.</p>
+
+<p>On peut voire deux parties ici</p>
+
+<p><strong>La fonction __init__</strong> : ici on définit l’architecture du réseau. Notre réseau est composé de deux parties : <code class="language-plaintext highlighter-rouge">self.convnet</code> et <code class="language-plaintext highlighter-rouge">self.classifier</code>. La partie <code class="language-plaintext highlighter-rouge">convnet</code> est la partie convolutionnelle : c’est elle qui se charge de faire l’analyse de l’image, et de reconnaitre les formes (voir le poste /2018/01/08/convolutional-neural-net/). 
+Elle est composée de deux couches de convolution (reconnaissance de patterns), suivies d’une non-linéarité (ReLU), et d’une couche de pooling (qui permet de rendre la sortie invariante aux translations).</p>
+
+<p>La seconde partie est le ‘classifieur’, il prend la sortie du réseau de convolution, et en ressort un vecteur de taille <code class="language-plaintext highlighter-rouge">num_classes = 3</code> qui représente le score de chaque action à effectuer.</p>
+
+<p>L’appel <code class="language-plaintext highlighter-rouge">nn.Sequential</code> permet de créer les couches en succession. L’entrée passera successivement par toutes ces couches, l’entrée d’une couche étant la sortie de la précédente.</p>
+
+<p>[expliquer la couche de convolution, et les chiffres]</p>
+
+<p><strong>La fonction forward</strong>
+C’est cette fonction qui sera appelée par pytorch au moment de l’appel de notre module. 
+On remarque le passage d’une entrée 2D à une entrée 1D entre les deux parties convnet et classifier grâce à la fonction <code class="language-plaintext highlighter-rouge">input = input.view(input.size(0), -1)</code> (la première dimension étant le nombre d’images dans un batch). C’est un raccourci pour <code class="language-plaintext highlighter-rouge">input = input.view(input.size(0), input.size(1) * input.size(2) * input.size(3)</code></p>
+
+<p>L’entrée aura en effet 4 dimensions : la première pour le batch, les 2 suivantes pour les dimensions x et y de l’image, et la dernière pour le nombre de <em>channels</em> de l’image : Ce sera 3 pour les 3 couleurs à l’entrée du réseau, puis chaque convolution créera de nouveaux <em>channels</em> tout en réduisant la taille x et y. Ainsi, au fur et a mesure des couches, la 1ere dimension restera fixe (le nombre d’image dans le batch), mais les deux suivantes vont diminuer, et la 3eme (channels) va augmenter.</p>
+
+<h2 id="entrainement">Entrainement</h2>
+
+<h3 id="préparation-des-données">Préparation des données</h3>
+
+<p>Nous allons créer une classe <code class="language-plaintext highlighter-rouge">Dataset</code>, qui sera utilisée par pytorch pour charger notre jeu de donnée en mémoire grâce à sa classe <code class="language-plaintext highlighter-rouge">DataLoder</code>. Ces fonctions sont expliquées en détail dans [lien vers le tuto avancé sur data processing]</p>
+
+<p>Tout d’abord, nous allons définir les transformations qui seront utilisées pour pré-traiter les images, afin de les donner en entrée au réseau de neurone.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+
+<span class="n">transform_driving_image</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">72</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)),</span>
+<span class="p">])</span>
+</code></pre></div></div>
+
+<p>Cette transformation effectue les actions suivantes :</p>
+
+<p><strong>Rogne l’image</strong>  : <code class="language-plaintext highlighter-rouge">transforms.CenterCrop(72)</code></p>
+
+<p>Pour ne garder qu’un carré de taille 72 pixels, centré de la même manière que l’image. En effet, l’image que nous obtenons de l’environnement est comme ceci : 
+<img src="/assets/self-driving-1/screen-92px.png" alt="écran original" />
+Nous pouvons voir que l’écran affiche une barre d’indication sur la vitesse et les commandes de direction et accéleration. Si nous ne la masquons pas, le CNN risque d’apprendre à associer les commandes que nous lui donnons, avec ces indications (c’est en effet le meilleur indicateur pour déduire la commande à effectuer à partir de l’écran).</p>
+
+<p>Après rognage, l’image obtenue est ci-dessous. Le CNN sera forcé d’analyser la route et la position de la voiture afin 
+<img src="/assets/self-driving-1/screen-cropped-72px.png" alt="écran rogné" /></p>
+
+<p>On remarque que les images fournies au CNN sont de bien moins bonne qualité que celle affichées par l’environnement lors du jeu. Elles ne font en effet que 96 pixels de coté. Cela va suffir au réseau de neurone pour analyser les formes, et rendra l’entrainement beaucoup plus rapide (car beaucoup moins de neurones seront nécessaires).</p>
+
+<p><strong>Transforme la matrice en Tensor pytorch</strong> <code class="language-plaintext highlighter-rouge">transforms.ToTensor()</code></p>
+
+<p>Le tenseur est l’objet de base dans pytorch pour stocker des données. C’est l’analogue à une matrice numpy, sauf qu’il peut être stocké sur CPU, ou sur GPU. Nous devons transformer notre image en tenseur pytorch avant de la donner en entrée au réseau de neurone.</p>
+
+<p>On pourrait aussi utiliser la fonction <code class="language-plaintext highlighter-rouge">tensor.from_numpy(numpy_array)</code> pour transformer un array numpy en <em>Tensor</em>.</p>
+
+<p><strong>Normalisation</strong> : <code class="language-plaintext highlighter-rouge">transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))</code></p>
+
+<p>Les images fournies par PIL ont des données comprises entre 0 et 1. Ici, nous soustrayons 0.5, et divisons par 0.5 afin d’avoir des données comprises entre -1 et 1, ce qui est plus efficace pour l’entrainement d’un réseau de neurone (données centrées en 0 et de variance proche de 1).</p>
+
+<h3 id="on-peut-alors-créer-la-classe-dataset">On peut alors créer la classe Dataset</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span><span class="p">.</span><span class="n">convert</span><span class="p">(</span><span class="s">'RGB'</span><span class="p">)</span>
+
+<span class="n">transform_driving_image</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">72</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)),</span>
+<span class="p">])</span>
+
+<span class="k">class</span> <span class="nc">CustomDataset</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="s">"images"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="s">"labels.txt"</span><span class="p">),</span> <span class="s">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">f</span><span class="p">.</span><span class="n">readlines</span><span class="p">()]</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[[</span><span class="n">f</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span> <span class="k">for</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">lines</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform_driving_image</span>
+    
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">labels</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">image_name</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">labels</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">load_image</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">images</span><span class="p">,</span> <span class="n">image_name</span><span class="p">))),</span> <span class="n">torch</span><span class="p">.</span><span class="n">LongTensor</span><span class="p">([</span><span class="n">label</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">get_dataloader</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">CustomDataset</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">LEFT</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">RIGHT</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">GO</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ACTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">GO</span><span class="p">]</span>
+</code></pre></div></div>
+<p>Voir le fichier complet <a href="https://github.com/cdancette/supervised-self-driving/blob/master/data.py">data.py</a></p>
+
+<p><strong>La fonction __len__</strong> doit renvoyer la longueur du dataset. Ici c’est le nombre total d’images.</p>
+
+<p><strong>La fonction __getitem__(self, index)</strong> doit renvoyer l’objet d’index <code class="language-plaintext highlighter-rouge">index</code>. Ici, nous chargeons l’image correspondant à cet index, nous lui appliquons les transformations, puis nous renvoyons la matrice ainsi que les labels (sous forme de Tensor).</p>
+
+<p><strong>Directions</strong>
+On a encodé les directions dans trois variables <code class="language-plaintext highlighter-rouge">LEFT</code>, <code class="language-plaintext highlighter-rouge">RIGHT</code> et <code class="language-plaintext highlighter-rouge">GO</code>, qui nous serviront dans les différents modules.</p>
+
+<h3 id="code-pour-lentrainement-du-réseau-de-neurone">Code pour l’entrainement du réseau de neurone</h3>
+
+<p>Ce code est tiré du tutoriel <a href="http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html">http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html</a>.</p>
+
+<p>L’idée générale est la suivante :</p>
+
+<p>A chaque epoch, on entraine sur l’ensemble du dataset de train, puis on évalue sur le dataset de training. Les données sont chargées grâce à un <em>DataLoader</em>, fourni par pytorch (on lui donne en argument l’objet <code class="language-plaintext highlighter-rouge">Dataset</code> qu’on a créé précedemment).</p>
+
+<p>Quelques étapes importantes:</p>
+
+<p><strong>Wrapper</strong> les <code class="language-plaintext highlighter-rouge">Tensors</code> dans des <code class="language-plaintext highlighter-rouge">Variables</code> : En pytorch, il est nécessaire de faire cette étape <code class="language-plaintext highlighter-rouge">data = Variable(tensor)</code>, car c’est l’objet <code class="language-plaintext highlighter-rouge">Variable</code> qui va garder en mémoire le gradiant de cette variable en fonction de la loss finale. Une variable est en fait une combinaison de deux tensors, celui des données et celui des gradiants.</p>
+
+<p><strong>Backpropagation</strong></p>
+
+<p>Pour effectuer la backpropagation en pytorch, les étapes suivantes sont nécessaires :</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">optimizer.zero_grad()</code> à chaque itération de la boucle. Cela remet à zero les gradiants de chaque paramètre.</li>
+  <li><code class="language-plaintext highlighter-rouge">loss.backward()</code> : cela va calculer les gradiants pour chaque variable par backpropagation en fonction de la loss, et les stocker dans l’objet Variable</li>
+  <li><code class="language-plaintext highlighter-rouge">optimizer.step()</code> : Modifie chaque paramètre de notre modèle (poids des réseaux) de manière à minimiser la loss.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">copy</span> 
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">optim</span><span class="p">,</span> <span class="n">nn</span>
+
+<span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">CustomModel</span>
+<span class="kn">from</span> <span class="nn">data</span> <span class="kn">import</span> <span class="n">CustomDataset</span><span class="p">,</span> <span class="n">get_dataloader</span>
+
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">,</span> <span class="n">max_epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> 
+          <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">):</span>
+    
+    <span class="n">dataloaders</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">"train"</span><span class="p">:</span><span class="n">train_loader</span><span class="p">,</span> <span class="s">"val"</span><span class="p">:</span> <span class="n">test_loader</span>
+    <span class="p">}</span>
+
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="p">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+    <span class="n">best_acc</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_epochs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Epoch {}/{}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">max_epochs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'-'</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="c1"># Each epoch has a training and validation phase
+</span>        <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'val'</span><span class="p">,</span> <span class="s">'train'</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s">'train'</span><span class="p">:</span>
+                <span class="n">model</span><span class="p">.</span><span class="n">train</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>  <span class="c1"># Set model to training mode
+</span>            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model</span><span class="p">.</span><span class="n">train</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>  <span class="c1"># Set model to evaluate mode
+</span>
+            <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">running_corrects</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">dataloaders</span><span class="p">[</span><span class="n">phase</span><span class="p">]:</span>
+                <span class="c1"># get the inputs
+</span>                <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">.</span><span class="n">view</span><span class="p">(</span><span class="n">labels</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+                <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="n">Variable</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+                <span class="n">optimizer</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+                <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">outputs</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+                <span class="c1"># backward + optimize only if in training phase
+</span>                <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s">'train'</span><span class="p">:</span>
+                    <span class="n">loss</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+                    <span class="n">optimizer</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+                <span class="c1"># statistics
+</span>                <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">inputs</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">running_corrects</span> <span class="o">+=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">preds</span> <span class="o">==</span> <span class="n">labels</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="n">epoch_loss</span> <span class="o">=</span> <span class="n">running_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloaders</span><span class="p">[</span><span class="n">phase</span><span class="p">])</span>
+            <span class="n">epoch_acc</span> <span class="o">=</span> <span class="n">running_corrects</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloaders</span><span class="p">[</span><span class="n">phase</span><span class="p">])</span>
+
+            <span class="k">print</span><span class="p">(</span><span class="s">'{} Loss: {:.4f} Acc: {:.4f}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+                <span class="n">phase</span><span class="p">,</span> <span class="n">epoch_loss</span><span class="p">,</span> <span class="n">epoch_acc</span><span class="p">))</span>
+
+            <span class="c1"># deep copy the model
+</span>            <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s">'val'</span> <span class="ow">and</span> <span class="n">epoch_acc</span> <span class="o">&gt;</span> <span class="n">best_acc</span><span class="p">:</span>
+                <span class="n">best_acc</span> <span class="o">=</span> <span class="n">epoch_acc</span>
+                <span class="n">best_model_wts</span> <span class="o">=</span> <span class="n">copy</span><span class="p">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">state_dict</span><span class="p">())</span>
+                <span class="n">torch</span><span class="p">.</span><span class="n">save</span><span class="p">(</span><span class="n">best_model_wts</span><span class="p">,</span> <span class="s">"models2/model-%s.weights"</span> <span class="o">%</span> <span class="n">epoch</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'Training complete'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Best val Acc: {:4f}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">best_acc</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">'__main__'</span><span class="p">:</span> 
+    <span class="n">num_classes</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">CustomModel</span><span class="p">()</span>
+
+    <span class="n">train_path</span> <span class="o">=</span> <span class="s">"train_set"</span>
+    <span class="n">test_path</span> <span class="o">=</span> <span class="s">"test_set"</span>
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">get_dataloader</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">test_loader</span> <span class="o">=</span> <span class="n">get_dataloader</span><span class="p">(</span><span class="n">test_path</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+    <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">)</span>
+
+</code></pre></div></div>
+<p>Voir le fichier complet <a href="https://github.com/cdancette/supervised-self-driving/blob/master/train.py">train.py</a></p>
+
+<h2 id="conduite-de-la-voiture-grâce-à-notre-modèle">Conduite de la voiture grâce à notre modèle</h2>
+
+<p>Nous avons maintenant notre modèle qui est entrainé. Nous allons maintenant l’utiliser pour automatiser la direction de la voiture.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">gym</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">import</span> <span class="nn">PIL</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Softmax</span>
+<span class="kn">from</span> <span class="nn">pyglet.window</span> <span class="kn">import</span> <span class="n">key</span>
+
+<span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">CustomModel</span>
+<span class="kn">from</span> <span class="nn">data</span> <span class="kn">import</span> <span class="n">transform_driving_image</span>
+
+<span class="n">id_to_steer</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">LEFT</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">RIGHT</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">GO</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">'__main__'</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">sys</span><span class="p">.</span><span class="nb">exit</span><span class="p">(</span><span class="s">"Usage : python drive.py path/to/weights"</span><span class="p">)</span>
+    <span class="c1"># load the model
+</span>    <span class="n">model_weights</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">CustomModel</span><span class="p">()</span>
+    <span class="n">model</span><span class="p">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_weights</span><span class="p">))</span>
+
+    <span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="p">.</span><span class="n">make</span><span class="p">(</span><span class="s">'CarRacing-v0'</span><span class="p">).</span><span class="n">env</span>
+    <span class="n">env</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">key_press</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">mod</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">restart</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">LEFT</span><span class="p">:</span>  <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">RIGHT</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">UP</span><span class="p">:</span>    <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">DOWN</span><span class="p">:</span>  <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mf">0.8</span>   <span class="c1"># set 1.0 for wheels to block to zero rotation
+</span>    <span class="k">def</span> <span class="nf">key_release</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">mod</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">LEFT</span>  <span class="ow">and</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==-</span><span class="mf">1.0</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">RIGHT</span> <span class="ow">and</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==+</span><span class="mf">1.0</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">UP</span><span class="p">:</span>    <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="n">key</span><span class="p">.</span><span class="n">DOWN</span><span class="p">:</span>  <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">env</span><span class="p">.</span><span class="n">viewer</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">on_key_press</span> <span class="o">=</span> <span class="n">key_press</span>
+    <span class="n">env</span><span class="p">.</span><span class="n">viewer</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">on_key_release</span> <span class="o">=</span> <span class="n">key_release</span>
+    <span class="n">env</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+    
+    <span class="c1"># initialisation
+</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+        <span class="n">env</span><span class="p">.</span><span class="n">step</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">env</span><span class="p">.</span><span class="n">render</span><span class="p">()</span>
+    
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="p">.</span><span class="n">step</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># We transform our numpy array to PIL image
+</span>        <span class="c1"># because our transformation takes an image as input
+</span>        <span class="n">s</span>  <span class="o">=</span> <span class="n">PIL</span><span class="p">.</span><span class="n">Image</span><span class="p">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>  
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">transform_driving_image</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">volatile</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">Softmax</span><span class="p">()(</span><span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">output</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">id_to_steer</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">*</span> <span class="n">output</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.3</span>  <span class="c1"># lateral acceleration
+</span>        <span class="n">env</span><span class="p">.</span><span class="n">render</span><span class="p">()</span>
+    <span class="n">env</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+<p>Voir le fichier complet <a href="https://github.com/cdancette/supervised-self-driving/blob/master/drive.py">drive.py</a></p>
+
+<p>Regardons plus précisément ce qui se passe dans la boucle :</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="p">.</span><span class="n">step</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>        
+<span class="n">s</span>  <span class="o">=</span> <span class="n">PIL</span><span class="p">.</span><span class="n">Image</span><span class="p">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>  
+</code></pre></div></div>
+
+<p>On récupère la matrice de pixels, et on la lit en utilisant PIL (pour qu’elle soit au même format que les images lues par le dataloader pendant le training)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">input</span> <span class="o">=</span> <span class="n">transform_driving_image</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</code></pre></div></div>
+<p>On lui applique les mêmes transformations que dans le dataset (rognage des cotés de l’image, transformation en <code class="language-plaintext highlighter-rouge">Tensor</code>, et normalisation entre -1 et 1.)</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>input = Variable(input[None, :], volatile=True)
+</code></pre></div></div>
+<p>On convertit le <code class="language-plaintext highlighter-rouge">Tensor</code> en <code class="language-plaintext highlighter-rouge">Variable</code> pour le donner en entrée au réseau de neurone. L’argument <code class="language-plaintext highlighter-rouge">volatile=True</code> permet d’économiser de la mémoire, en disant au réseau de ne pas sauvegarder les opérations effectuées (utile quand on ne veut pas entrainer le modèle avec ces exemples).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">output</span> <span class="o">=</span> <span class="n">Softmax</span><span class="p">()(</span><span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">output</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># index is a tensor
+</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># get the integer inside the tensor
+</span></code></pre></div></div>
+
+<p>On donne l’image au réseau, on récupère la sortie. C’est un tenseur de taille 3, chaque entrée correspond au score de chaque action (gauche, droite ou tout droit). L’action à choisir sera celle qui a le score le plus haut (on la passe dans un Softmax pour avoir une sortie entre 0 et 1).
+On récupère l’action avec la fonction <code class="language-plaintext highlighter-rouge">max</code> qui renvoie la valeur max, et son index.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">id_to_steer</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">*</span> <span class="n">output</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.3</span>  <span class="c1"># lateral acceleration
+</span><span class="n">env</span><span class="p">.</span><span class="n">render</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">a[0]</code> est l’accéleration latérale. On lui donne la valeur 0, 1 ou -1 selon l’action choisie par le réseau de neurone. On multiplie cette action par un coefficient de 0.3 pour éviter les actions trop brusques, et également par la probabilité de l’action donnée par le réseau (cela permet d’avoir des actions plus importantes si le réseau est sur de son action, et moins importante lorsque le réseau hésite).</p>
+
+<p><strong>Après le lancement,</strong> il faut contrôler la vitesse de la voiture avec les touches haut et bas du clavier. La direction sera choisie par le réseau de neurone</p>
+
+<div class="row mt-3 justify-content-center">
+    <div class="col-8 mt-3 mb-3 mt-md-0">
+        <img class="img-fluid rounded z-depth-1" src="/assets/self-driving-1/car-running.gif" />
+    </div>
+</div>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Notre réseau reconnait les formes pour maintenir la voiture sur la trajectoire voulue. 
+C’est une sorte de classifieur qui indique juste si la voiture est bien placée, trop à droite ou trop à gauche. Nous transmettons alors cette commande au simulateur. Tout ceci s’effectue en temps réel.</p>
+
+<h2 id="pour-aller-plus-loin">Pour aller plus loin</h2>
+
+<h3 id="contrôle-de-laccéleration">Contrôle de l’accéleration</h3>
+<p>Le contrôle de la voiture n’est pas total ici : le réseau contrôle uniquement l’accéleration latérale (la direction droite / gauche) de la voiture, mais ne contrôle pas l’accéleration (donc la vitesse).  Le problème est qu’il est impossible de deviner la vitesse de la voiture en regardant une seule image, donc il ne peut pas contrôler l’accéleration pour maintenir une vitesse convenable.</p>
+
+<ul>
+  <li>
+    <p>utiliser la barre de vitesse qui est sous l’image (celle que l’on a masquée). Mais il faudrait garder masqué la barre de direction, qui induit en erreur le classifieur de direction;</p>
+  </li>
+  <li>
+    <p>Donner au réseau plusieurs images successives, au lieu d’une seule. De cette manière, le réseau pourrait déduire la vitesse de la voiture</p>
+  </li>
+  <li>
+    <p>Demander au réseau de contrôler uniquement la vitesse, et non l’accéleration (il faut alors coder un système de rétrocontrôle qui va maintenir la vitesse demandée) : cette approche n’est pas vraiment <em>end-to-end</em> mais peut être plus simple si on a des données externes correctes sur la vitesse actuelle (on pourrait modifier l’environnement pour les fournir en plus de l’état).</p>
+  </li>
+</ul>
+
+<h3 id="data-augmentation">Data augmentation</h3>
+
+<p>Pour améliorer la performance des classifieurs, la meilleure méthode est d’augmenter la quantité de données. Mais ici, c’est assez long car les données doivent être enregistrées en jouant au jeu manuellement. Une manière d’augmenter artificiellement la quantité de données est appellée <em>data augmentation</em>. Il s’agit d’effectuer des transformations aux images, qui ne modifieront pas le labels (ou le modifieront de manière déterminée).</p>
+
+<p>On peut par exemple prendre l’image symétrique par rapport à l’axe vertical. Les labels gauche / droite seront alors inversés, et on multiplie par 2 la quantité de données de manière immédiate. D’autres transformations possibles peuvent etre de déformer un peu l’image ou de modifier légèrement les couleurs (ici les couleurs sont fixes dans l’environnement, donc cela sera surement moins efficace ici que sur des vraies images).</p>
+
+<h3 id="analyse-des-patterns-reconnus-par-le-réseau">Analyse des patterns reconnus par le réseau</h3>
+
+<p>On peut aussi regarder dans les couches pour avoir des informations sur ce que les neurones ont appris. Des packages comme <a href="https://github.com/utkuozbulak/pytorch-cnn-visualizations">https://github.com/utkuozbulak/pytorch-cnn-visualizations</a> permettent de le faire.</p>
+
+  </article>
+
+  
+
+</div>
+
+    </div>
+
+    <!-- Footer -->
+
+    
+<footer class="sticky-bottom mt-5">
+  <div class="container">
+    &copy; Copyright 2020 Corentin Dancette.
+    Powered sort_by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
+
+    
+  </div>
+</footer>
+
+
+
+  </body>
+
+  <!-- Load Core and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js" integrity="sha256-OH05DFHUWzr725HmuHo3pnuvUUn+TJuj8/Qz9xytFEw=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/js/mdb.min.js"  integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<!-- Load Common JS -->
+<script src="/assets/js/common.js"></script>
+
+<!-- Code Syntax Highlighting -->
+<link rel="stylesheet" href="https://gitcdn.link/repo/jwarby/jekyll-pygments-themes/master/github.css" />
+
+
+<!-- Load KaTeX -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" integrity="sha256-V8SV2MO1FUb63Bwht5Wx9x6PVHNa02gv8BgH/uH3ung=" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous"></script>
+<script src="/assets/js/katex.js"></script>
+
+
+
+<!-- Load Mansory & imagesLoaded -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js" integrity="" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+
+<!-- Project Cards Layout -->
+<script type="text/javascript">
+  // Init Masonry
+  var $grid = $('.grid').masonry({
+    gutter: 10,
+    horizontalOrder: true,
+    itemSelector: '.grid-item',
+  });
+  // layout Masonry after each image loads
+  $grid.imagesLoaded().progress( function() {
+    $grid.masonry('layout');
+  });
+</script>
+
+
+
+
+
+
+
+</html>

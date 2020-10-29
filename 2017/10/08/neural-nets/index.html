@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Corentin Dancette | Fonctionnement d'un réseau de neurone artificiel</title>
+<meta name="description" content="A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
+">
+
+<!-- Bootstrap & MDB -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/css/mdb.min.css" integrity="sha256-/SwJ2GDcEt5382i8zqDwl36VJGECxEoIcBIuoLmLR4g=" crossorigin="anonymous" />
+
+<!-- Fonts & Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"  integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons">
+
+<!-- Styles -->
+<link rel="shortcut icon" href="/assets/img/favicon.ico">
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<link rel="canonical" href="/2017/10/08/neural-nets/">
+
+<!-- Open Graph -->
+
+
+  </head>
+
+  <body class="fixed-top-nav sticky-bottom-footer">
+
+    <!-- Header -->
+
+    <header>
+
+    <!-- Nav Bar -->
+    <nav id="navbar" class="navbar navbar-light bg-white navbar-expand-sm fixed-top">
+    <div class="container">
+      
+        
+        <a class="navbar-brand title font-weight-lighter" href="/"><span class="font-weight-bold">Corentin</span> Dancette</a>
+      
+      <!-- Navbar Toogle -->
+      <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+      <div class="collapse navbar-collapse text-right" id="navbarNav">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">
+              about
+              
+            </a>
+          </li>
+          <ul class="navbar-nav ml-auto flex-nowrap">
+            <!-- About -->
+            <li class="nav-item ">
+              <a class="nav-link" href="/#publications">
+                publications
+                
+              </a>
+            </li>
+          
+          <!-- Blog -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/blog/">
+              blog
+              
+            </a>
+          </li>
+          
+          <!-- Other pages -->
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/projects/">
+                projects
+                
+              </a>
+          </li>
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/teaching/">
+                teaching
+                
+              </a>
+          </li>
+          
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+</header>
+
+
+    <!-- Content -->
+
+    <div class="container mt-5">
+      
+
+<div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Fonctionnement d'un réseau de neurone artificiel</h1>
+    <p class="post-meta">October 8, 2017</p>
+  </header>
+
+  <article class="post-content">
+    <p>Une explication simple sur le principe de fonctionement d’un réseau de neurone, outil de machine learning qui permet d’approximer des fonctions.</p>
+
+<p>Le réseau de neurone est une méthode utilisée en machine learning, pour la regression ou la classification de données.
+La régression est l’approximation d’une fonction réelle (par exemple les prix d’un logement, que l’on veut approximer en fonction de sa localisation géographique). La classification consiste à attribuer des labels à des données : par exemple, en fonction de la couleur et de la forme d’un champignon, déterminer s’il est toxique ou pas (2 labels ici : Toxique, non toxique).</p>
+
+<h2 id="le-neurone">Le neurone.</h2>
+
+<p>Un neurone est tout simplement une fonction, dotée de paramètres.</p>
+
+<p>Cette fonction est <script type="math/tex">output = activation(w_1 x1 + w_2  x2 + ... + w_n x_n)</script>.</p>
+
+<p>L’entrée (<em>input</em>) est fournies par les données, ou bien par les sorties des neurones précédents. C’est le vecteur <script type="math/tex">(x_1, x_2, .. x_n)</script></p>
+
+<p>Les <strong>poids</strong> du neurone sont les valeurs <script type="math/tex">(w_1, w_2, .. w_n)</script>. Ce sont les seuls valeurs qui sont propres au réseau de neurone. Lorsque l’on sauvegardera sur le disque notre réseau entrainé, ce seront ces poids qui seront enregistrés. Les poids d’un réseau de neurone, avec son architecture (nombre de couches, nombre de neurones sur chaque couche), le définissent entièrement.</p>
+
+<p>La sortie (<em>output</em>), est un nombre réel, donné par la fonction ci-dessus.</p>
+
+<p>Et la fonction d’activation est une fonction non linéaire. Nous verrons plus bas les différentes fonctions d’activation habituellement utilisées.</p>
+
+<p><img src="/assets/neuron.png" alt="Schéma d'un neurone" /></p>
+
+<h2 id="le-réseau">Le réseau</h2>
+
+<p>Un réseau est constitué habituellement de couches successives de neurones placés en parallèle.</p>
+
+<p>Chaque neurone prend son entrée depuis la sortie des neurones de la couche suivante.
+On appelle “fully connected layer” lorsque pour chaque neurone, sa sortie est reliée à tous les neurones de la couche suivante.</p>
+
+<p><img src="/assets/Neural_network.svg" alt="Réseau de neurone" /></p>
+
+<p>Il existe d’autres types de couche, ou les neurones ne sont pas nécessairement connectés à tous les neurones de la couche précédentes. Un exemple est le <a href="https://fr.wikipedia.org/wiki/R%C3%A9seau_neuronal_convolutif">réseau de neurone convolutif</a> (<em>convolutional neural network</em>), qui est particulièrement adapté pour le traitement d’images en raison de son architecture.</p>
+
+<h4 id="les-fonctions-dactivation">Les fonctions d’activation</h4>
+
+<p>Si on utilise la fonction identité (<script type="math/tex">f(x) = x</script>), alors le neurone représentera une simple combinaison linéaire des input, et des poids.</p>
+
+<p>En général, on utilise des fonctions non linéaires. Deux fonctions parmi les plus courantes sont la sigmoide, et reLu :</p>
+
+<p>La sigmoïde</p>
+
+<script type="math/tex; mode=display">sig(x) = \frac{1}{1 + e^{-x}}</script>
+
+<p><img src="/assets/sigmoid.svg" alt="sigmode" class="center-image" /></p>
+
+<p>La fonction ReLU a pour équation</p>
+
+<script type="math/tex; mode=display">relu(x) = max(0, x)</script>
+
+<p><img src="/assets/relu.png" alt="sigmode" class="center-image" /></p>
+
+<p>Elle est représentée en bleu sur l’image ci-dessus.
+Ces différentes fonctions peuvent avoir une influence sur la performance du réseau de neurone à généraliser à partir des données qui lui sont fournies.</p>
+
+<h3 id="pourquoi-des-fonctions-dactivations-non-linéaires-">Pourquoi des fonctions d’activations non linéaires ?</h3>
+
+<p>On peut se demander pourquoi un réseau de neurone a-t-il besoin de ces fonctions d’activations non linéaires. C’est précisément cette non linéarité qui donne toute sa puissance au réseau de neurone, et le rend capable d’approximer n’importe quelle fonction continue.</p>
+
+<p>En fait, un réseau de neurone sans ces non linéarités, avec uniquement des combinaisons linéaires, n’a aucune utilité, car il peut être simplifié lui même en une combinaison linéaire. Ajouter des couches n’a aucune influence sur la puissance de représentation du réseau.</p>
+
+<p>Vous pouvez lire ici <a href="http://neuralnetworksanddeeplearning.com/chap4.html">une preuve (en anglais)</a> visuelle du fait que les réseaux de neurones sont des approximateurs universels (ils peuvent s’approcher de toute fonction continue).</p>
+
+<h2 id="feedforward">FeedForward</h2>
+
+<p>Un réseau de neurone est utilisé en regression ou classification. Pour l’utiliser, on utilise l’opération de “forward” : il s’agit de calculer la sortie du réseau de neurone en fonction de l’entrée, en appliquant couche par couche les fonctions des neurones.</p>
+
+<p>Pour obtenir une bonne valeur de sortie, il est donc nécessaire de configurer les paramtres des neurones (appelés “poids”) pour qu’à chaque sample (une instance de nos données), une valeur convenable lui soit associée.</p>
+
+<h2 id="backpropagation">Backpropagation</h2>
+
+<p>L’entrainement d’un réseau de neurone est effectué habituellement par l’algorithme de backpropagation, basé sur la descente du gradient.</p>
+
+<p>Pour chaque sample (input, value), on calcule le loss <script type="math/tex">L</script> (par exemple le carré de la différence entre la sortie du réseau de neurone, et la valeur voulue) : <script type="math/tex">L = \lVert value - output \rVert^2</script>.</p>
+
+<p>Pour chaque poids <script type="math/tex">w</script>, on calcule le gradient de cette fonction <script type="math/tex">L</script> en fonction des poids du neurone.
+On commence par la dernière couche, puis les couches précedentes grâce à la relation de chaine.
+On obtient ainsi pour chaque poids <script type="math/tex">w</script> la valeur du gradient au point donnée par le sample.</p>
+
+<script type="math/tex; mode=display">\delta_L = \frac{\partial L}{\partial w}(value)</script>
+
+<p>Puis on applique l’algorithme de la descente du gradient pour modifier légerement les poids du réseau de neurone</p>
+
+<script type="math/tex; mode=display">w  = w + \lambda \delta_L</script>
+
+<p><script type="math/tex">\lambda</script> est appelé facteur d’apprentissage ou <em>learning rate</em>. Plus le learning rate est faible, plus le réseau apprendra lentement. Mais un learning rate trop grand peut empêcher la convergence des poids. En général, on choisit une valeur <script type="math/tex">\lambda \leq 0.1</script></p>
+
+<p>Pour avoir un détail des calculs, vous pouvez consulter le site suivant : <a href="http://neuralnetworksanddeeplearning.com/chap2.html">http://neuralnetworksanddeeplearning.com/chap2.html</a></p>
+
+  </article>
+
+  
+
+</div>
+
+    </div>
+
+    <!-- Footer -->
+
+    
+<footer class="sticky-bottom mt-5">
+  <div class="container">
+    &copy; Copyright 2020 Corentin Dancette.
+    Powered sort_by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
+
+    
+  </div>
+</footer>
+
+
+
+  </body>
+
+  <!-- Load Core and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js" integrity="sha256-OH05DFHUWzr725HmuHo3pnuvUUn+TJuj8/Qz9xytFEw=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/js/mdb.min.js"  integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<!-- Load Common JS -->
+<script src="/assets/js/common.js"></script>
+
+<!-- Code Syntax Highlighting -->
+<link rel="stylesheet" href="https://gitcdn.link/repo/jwarby/jekyll-pygments-themes/master/github.css" />
+
+
+<!-- Load KaTeX -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" integrity="sha256-V8SV2MO1FUb63Bwht5Wx9x6PVHNa02gv8BgH/uH3ung=" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous"></script>
+<script src="/assets/js/katex.js"></script>
+
+
+
+<!-- Load Mansory & imagesLoaded -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js" integrity="" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+
+<!-- Project Cards Layout -->
+<script type="text/javascript">
+  // Init Masonry
+  var $grid = $('.grid').masonry({
+    gutter: 10,
+    horizontalOrder: true,
+    itemSelector: '.grid-item',
+  });
+  // layout Masonry after each image loads
+  $grid.imagesLoaded().progress( function() {
+    $grid.masonry('layout');
+  });
+</script>
+
+
+
+
+
+
+
+</html>
