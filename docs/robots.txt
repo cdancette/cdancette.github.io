@@ -1,1 +1,1 @@
-Sitemap: /sitemap.xml
+Sitemap: https://cdancette.fr/sitemap.xml
