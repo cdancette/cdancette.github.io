@@ -30,21 +30,8 @@
 
 
 <!-- Matomo -->
-<script type="text/javascript">
-    var _paq = window._paq = window._paq || [];
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    (function() {
-      var u="//cdancette-analytics.l4th.fr/";
-      _paq.push(['setTrackerUrl', u+'matomo.php']);
-      _paq.push(['setSiteId', '1']);
-      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-      g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-    })();
-  </script>
-  <noscript><p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript>
-  <!-- End Matomo Code -->
+<p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p>
+<!-- End Matomo Code -->
   
   
   </head>
@@ -148,6 +135,32 @@
 
 
   <ul class="post-list">
+    
+      <li>
+        <h3><a class="post-title" href="/2021/03/09/python-tiny-renderer-part1/">Python Tiny Renderer Tutorial</a></h3>
+        <div><p>We present a tutorial to learn how a 3D rendering works, by writing a tiny renderer in python.
+This tutorial is heavily inspired by <a href="https://github.com/ssloy/tinyrenderer/wiki">tinyrenderer</a>, which is in c++. 
+I will follow the outline from this course, and use the inputs from it. 
+Do check it out, it is an awesome tutorial !</p>
+
+<h1 id="the-basics">The basics</h1>
+
+<p>We will learn in this tutorial how to write a very basic renderer in python. 
+We use python in this tutorial, because it enables us to focus on the algorithm rather than 
+on the implementation details. Of course, the renderer will be very slow, as rendering 2D images involves
+thousands or millions of small operations. We will sometimes use libraries such as numpy for faster computation, 
+but we will stay light. The goal is not to have a fast production renderer, but to learn how does 3D rendering work.</p>
+
+<p>We will improve the renderer in an incremental way, starting from basic drawing of lines and triangles, up to rendering of colored 3D 
+objects with shades.</p>
+
+<h2 id="the-first-lesson-drawing-lines">The First Lesson: Drawing Lines</h2>
+
+<p>For more details, look at https://github.com/ssloy/tinyrenderer/wiki/Lesson-1-Bresenham%E2%80%99s-Line-Drawing-Algorithm</p>
+</div>
+        <p class="post-meta">March 9, 2021</p>
+        <p></p>
+      </li>
     
       <li>
         <h3><a class="post-title" href="/2020/11/21/overview-bias-reductions-vqa/">An overview of bias reduction methods for Visual Question Answering</a></h3>
@@ -257,7 +270,7 @@ TODO
     
 <footer class="sticky-bottom mt-5">
   <div class="container">
-    &copy; Copyright 2020 Corentin Dancette.
+    &copy; Copyright 2021 Corentin Dancette.
     Powered sort_by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
 
     
