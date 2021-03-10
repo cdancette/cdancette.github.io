@@ -8,3 +8,5 @@ github: https://github.com/cdancette/vqa-cp-leaderboard
 # github_stars: 128
 importance: 1
 ---
+
+The leaderboard is here: https://github.com/cdancette/vqa-cp-leaderboard
