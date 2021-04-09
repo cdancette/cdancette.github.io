@@ -19,7 +19,7 @@ nav: false
 ---
 Hi! I am a french computer science student, I gratuated from Ecole Centrale Paris, France, and Georgia Institute of Technology, USA.
 
-I am currently a PhD student at the [MLIA](https://mlia.lip6.fr/) team, at the LIP6 lab, in Sorbone Université, Paris. I am mainly working on visual reasoning tasks, such as Visual Question Answering. 
+I am currently a PhD student at the [MLIA](https://mlia.lip6.fr/) team, at the LIP6 lab, in Sorbone Université, Paris. I am mainly working on visual reasoning tasks, such as Visual Question Answering. My research is funded by the [VISADEEP ANR chair](https://visadeep.sorbonne-universite.fr)
 
 I was previously intern at the [Cognitive Machine Learning team](http://www.lscp.net/persons/dupoux/bootphon/index.html) at Ecole Normale Supérieure, in Paris, as a machine learning research intern.
 
