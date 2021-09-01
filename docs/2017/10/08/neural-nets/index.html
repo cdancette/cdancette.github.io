@@ -7,7 +7,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <title>Corentin Dancette | Fonctionnement d'un réseau de neurone artificiel</title>
-<meta name="description" content="Corentin Dancette - personal website and blog
+<meta name="description" content="Corentin Dancette personal website and blog
 ">
 
 <!-- Bootstrap & MDB -->
@@ -30,8 +30,21 @@
 
 
 <!-- Matomo -->
-<p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p>
-<!-- End Matomo Code -->
+<script type="text/javascript">
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="//cdancette-analytics.l4th.fr/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <noscript><p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+  <!-- End Matomo Code -->
   
   
   </head>
@@ -145,11 +158,11 @@ La régression est l’approximation d’une fonction réelle (par exemple les p
 
 <p>Un neurone est tout simplement une fonction, dotée de paramètres.</p>
 
-<p>Cette fonction est <script type="math/tex">output = activation(w_1 x1 + w_2  x2 + ... + w_n x_n)</script>.</p>
+<p>Cette fonction est \(output = activation(w_1 x1 + w_2  x2 + ... + w_n x_n)\).</p>
 
-<p>L’entrée (<em>input</em>) est fournies par les données, ou bien par les sorties des neurones précédents. C’est le vecteur <script type="math/tex">(x_1, x_2, .. x_n)</script></p>
+<p>L’entrée (<em>input</em>) est fournies par les données, ou bien par les sorties des neurones précédents. C’est le vecteur \((x_1, x_2, .. x_n)\)</p>
 
-<p>Les <strong>poids</strong> du neurone sont les valeurs <script type="math/tex">(w_1, w_2, .. w_n)</script>. Ce sont les seuls valeurs qui sont propres au réseau de neurone. Lorsque l’on sauvegardera sur le disque notre réseau entrainé, ce seront ces poids qui seront enregistrés. Les poids d’un réseau de neurone, avec son architecture (nombre de couches, nombre de neurones sur chaque couche), le définissent entièrement.</p>
+<p>Les <strong>poids</strong> du neurone sont les valeurs \((w_1, w_2, .. w_n)\). Ce sont les seuls valeurs qui sont propres au réseau de neurone. Lorsque l’on sauvegardera sur le disque notre réseau entrainé, ce seront ces poids qui seront enregistrés. Les poids d’un réseau de neurone, avec son architecture (nombre de couches, nombre de neurones sur chaque couche), le définissent entièrement.</p>
 
 <p>La sortie (<em>output</em>), est un nombre réel, donné par la fonction ci-dessus.</p>
 
@@ -170,19 +183,19 @@ On appelle “fully connected layer” lorsque pour chaque neurone, sa sortie es
 
 <h4 id="les-fonctions-dactivation">Les fonctions d’activation</h4>
 
-<p>Si on utilise la fonction identité (<script type="math/tex">f(x) = x</script>), alors le neurone représentera une simple combinaison linéaire des input, et des poids.</p>
+<p>Si on utilise la fonction identité (\(f(x) = x\)), alors le neurone représentera une simple combinaison linéaire des input, et des poids.</p>
 
 <p>En général, on utilise des fonctions non linéaires. Deux fonctions parmi les plus courantes sont la sigmoide, et reLu :</p>
 
 <p>La sigmoïde</p>
 
-<script type="math/tex; mode=display">sig(x) = \frac{1}{1 + e^{-x}}</script>
+\[sig(x) = \frac{1}{1 + e^{-x}}\]
 
 <p><img src="/assets/sigmoid.svg" alt="sigmode" class="center-image" /></p>
 
 <p>La fonction ReLU a pour équation</p>
 
-<script type="math/tex; mode=display">relu(x) = max(0, x)</script>
+\[relu(x) = max(0, x)\]
 
 <p><img src="/assets/relu.png" alt="sigmode" class="center-image" /></p>
 
@@ -207,19 +220,19 @@ Ces différentes fonctions peuvent avoir une influence sur la performance du ré
 
 <p>L’entrainement d’un réseau de neurone est effectué habituellement par l’algorithme de backpropagation, basé sur la descente du gradient.</p>
 
-<p>Pour chaque sample (input, value), on calcule le loss <script type="math/tex">L</script> (par exemple le carré de la différence entre la sortie du réseau de neurone, et la valeur voulue) : <script type="math/tex">L = \lVert value - output \rVert^2</script>.</p>
+<p>Pour chaque sample (input, value), on calcule le loss \(L\) (par exemple le carré de la différence entre la sortie du réseau de neurone, et la valeur voulue) : \(L = \lVert value - output \rVert^2\).</p>
 
-<p>Pour chaque poids <script type="math/tex">w</script>, on calcule le gradient de cette fonction <script type="math/tex">L</script> en fonction des poids du neurone.
+<p>Pour chaque poids \(w\), on calcule le gradient de cette fonction \(L\) en fonction des poids du neurone.
 On commence par la dernière couche, puis les couches précedentes grâce à la relation de chaine.
-On obtient ainsi pour chaque poids <script type="math/tex">w</script> la valeur du gradient au point donnée par le sample.</p>
+On obtient ainsi pour chaque poids \(w\) la valeur du gradient au point donnée par le sample.</p>
 
-<script type="math/tex; mode=display">\delta_L = \frac{\partial L}{\partial w}(value)</script>
+\[\delta_L = \frac{\partial L}{\partial w}(value)\]
 
 <p>Puis on applique l’algorithme de la descente du gradient pour modifier légerement les poids du réseau de neurone</p>
 
-<script type="math/tex; mode=display">w  = w + \lambda \delta_L</script>
+\[w  = w + \lambda \delta_L\]
 
-<p><script type="math/tex">\lambda</script> est appelé facteur d’apprentissage ou <em>learning rate</em>. Plus le learning rate est faible, plus le réseau apprendra lentement. Mais un learning rate trop grand peut empêcher la convergence des poids. En général, on choisit une valeur <script type="math/tex">\lambda \leq 0.1</script></p>
+<p>\(\lambda\) est appelé facteur d’apprentissage ou <em>learning rate</em>. Plus le learning rate est faible, plus le réseau apprendra lentement. Mais un learning rate trop grand peut empêcher la convergence des poids. En général, on choisit une valeur \(\lambda \leq 0.1\)</p>
 
 <p>Pour avoir un détail des calculs, vous pouvez consulter le site suivant : <a href="http://neuralnetworksanddeeplearning.com/chap2.html">http://neuralnetworksanddeeplearning.com/chap2.html</a></p>
 

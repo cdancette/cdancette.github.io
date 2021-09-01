@@ -7,7 +7,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <title>Corentin Dancette</title>
-<meta name="description" content="Corentin Dancette - personal website and blog
+<meta name="description" content="Corentin Dancette personal website and blog
 ">
 
 <!-- Bootstrap & MDB -->
@@ -30,8 +30,21 @@
 
 
 <!-- Matomo -->
-<p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p>
-<!-- End Matomo Code -->
+<script type="text/javascript">
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="//cdancette-analytics.l4th.fr/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <noscript><p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+  <!-- End Matomo Code -->
   
   
   </head>
@@ -159,7 +172,7 @@
       <div class="col">
         <p>Hi! I am a french computer science student, I gratuated from Ecole Centrale Paris, France, and Georgia Institute of Technology, USA.</p>
 
-<p>I am currently a PhD student at the <a href="https://mlia.lip6.fr/">MLIA</a> team, at the LIP6 lab, in Sorbone Université, Paris. I am mainly working on visual reasoning tasks, such as Visual Question Answering.</p>
+<p>I am currently a PhD student at the <a href="https://mlia.lip6.fr/">MLIA</a> team, at the LIP6 lab, in Sorbone Université, Paris. I am mainly working on visual reasoning tasks, such as Visual Question Answering. My research is funded by the <a href="https://visadeep.sorbonne-universite.fr">VISADEEP ANR chair</a></p>
 
 <p>I was previously intern at the <a href="http://www.lscp.net/persons/dupoux/bootphon/index.html">Cognitive Machine Learning team</a> at Ecole Normale Supérieure, in Paris, as a machine learning research intern.</p>
 
@@ -212,6 +225,132 @@ I worked in the data engineering team, managing data pipelines with Spark and Ha
 <a class="anchor" id="publications"></a>
 <h1>Publications</h1>
 <div class="publications">
+  
+    <h2 class="year">2021</h2>
+    <ol class="bibliography"><li><!-- 
+  Which fields are displayed ?
+
+  - abbr: short abstract ?
+  - type
+  - title
+  - author
+  - abstract
+  - arxiv
+  - html
+  - pdf
+  - suppl
+  - poster
+  - slides
+  - code
+
+ -->
+
+
+<div class="row">
+  <div class="col-sm-2">
+  
+    <img class="img-fluid" src=/assets/bibliography/shortcuts.png>
+  
+  <!--  -->
+  </div>
+
+  <div id="dancette2021beyond" class="col-sm-8">
+    
+      <span class="title">Beyond question-based biases: Assessing multimodal shortcut learning in visual question answering</span>
+      <span class="author">
+        
+          
+            
+              
+                <em>Corentin Dancette</em>,
+              
+            
+          
+        
+          
+            
+              
+                
+                  <a href="http://remicadene.com" target="_blank">Remi Cadene</a>,
+                
+              
+            
+          
+        
+          
+            
+              
+                
+                  Damien Teney,
+                
+              
+            
+          
+        
+          
+            
+              
+                
+                  and <a href="https://webia.lip6.fr/~cord/" target="_blank">Matthieu Cord</a>
+                
+              
+            
+          
+        
+      </span>
+
+      <span class="periodical">
+      
+        <em>ICCV</em>
+      
+      
+        2021
+      
+      </span>
+    
+
+    <span class="links">
+    
+      [<a class="abstract">Abs</a>]
+    
+    
+      [<a class="bibtex">BibTex</a>]
+    
+    
+    
+    
+      <!-- [<a href="/assets/pdf/https://arxiv.org/abs/2104.03149" target="_blank">PDF</a>] -->
+      [<a href="https://arxiv.org/abs/2104.03149" target="_blank">PDF</a>]
+      
+    
+    
+    
+    
+      [<a href="https://github.com/cdancette/detect-shortcuts" target="_blank">Code</a>]
+    
+    </span>
+
+    <!-- Hidden abstract block -->
+    
+    <span class="abstract hidden">
+      <p>We introduce an evaluation methodology for visual question answering (VQA) to better diagnose cases of shortcut learning. These cases happen when a model exploits spurious statistical regularities to produce correct answers but does not actually deploy the desired behavior. There is a need to identify possible shortcuts in a dataset and assess their use before deploying a model in the real world. The research community in VQA has focused exclusively on question-based shortcuts, where a model might, for example, answer "What is the color of the sky" with "blue" by relying mostly on the question-conditional training prior and give little weight to visual evidence. We go a step further and consider multimodal shortcuts that involve both questions and images. We first identify potential shortcuts in the popular VQA v2 training set by mining trivial predictive rules such as co-occurrences of words and visual elements. We then introduce VQA-CounterExamples (VQA-CE), an evaluation protocol based on our subset of CounterExamples i.e. image-question-answer triplets where our rules lead to incorrect answers. We use this new evaluation in a large-scale study of existing approaches for VQA. We demonstrate that even state-of-the-art models perform poorly and that existing techniques to reduce biases are largely ineffective in this context. Our findings suggest that past work on question-based biases in VQA has only addressed one facet of a complex issue. The code for our method is available at https://github.com/cdancette/detect-shortcuts</p>
+    </span>
+    
+    
+    <span class="bibtex hidden">
+      <pre>@article{dancette2021beyond,
+  title = {Beyond question-based biases: Assessing multimodal shortcut learning in visual question answering},
+  author = {Dancette, Corentin and Cadene, Remi and Teney, Damien and Cord, Matthieu},
+  journal = {ICCV},
+  year = {2021},
+  pdf = {https://arxiv.org/abs/2104.03149}
+}
+</pre>
+    </span>
+    
+  </div>
+</div>
+</li></ol>
   
     <h2 class="year">2020</h2>
     <ol class="bibliography"><li><!-- 

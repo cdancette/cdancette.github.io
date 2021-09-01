@@ -7,7 +7,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <title>Corentin Dancette | An overview of bias reduction methods for Visual Question Answering</title>
-<meta name="description" content="Corentin Dancette - personal website and blog
+<meta name="description" content="Corentin Dancette personal website and blog
 ">
 
 <!-- Bootstrap & MDB -->
@@ -30,8 +30,21 @@
 
 
 <!-- Matomo -->
-<p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p>
-<!-- End Matomo Code -->
+<script type="text/javascript">
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="//cdancette-analytics.l4th.fr/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <noscript><p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+  <!-- End Matomo Code -->
   
   
   </head>
@@ -238,7 +251,7 @@ This will help for problems that suffer from an imbalance in labels / input conc
 For example, in Visual Question Answering, there often is an imbalance in the answer distribution. 
 Reweighting can help</p>
 
-<p>If we have an example <script type="math/tex">X = (v, q, a) \in (I, Q, A)</script> where <script type="math/tex">I</script> is the image set, <script type="math/tex">Q</script> is the question set and <script type="math/tex">A</script> is the answer set, we can sample our example X with the uniform probability for answers <script type="math/tex">p(a) = 1/\|A\|</script></p>
+<p>If we have an example \(X = (v, q, a) \in (I, Q, A)\) where \(I\) is the image set, \(Q\) is the question set and \(A\) is the answer set, we can sample our example X with the uniform probability for answers \(p(a) = 1/\|A\|\)</p>
 
 <p>We are here introducing a new bias to reverse the main bias: that all answers are equally important, and they must be seen an equal number of times. There is a risk of overfitting on rare examples that will be oversampled.
 <!-- The issue with this method is that we're introducing a new bias, and there is a risk of overfitting on rare examples that will be oversampled. --></p>

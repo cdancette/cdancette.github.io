@@ -7,7 +7,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <title>Corentin Dancette | Reinforcement learning en python sur un jeu simple grâce au Q-learning, Partie 1</title>
-<meta name="description" content="Corentin Dancette - personal website and blog
+<meta name="description" content="Corentin Dancette personal website and blog
 ">
 
 <!-- Bootstrap & MDB -->
@@ -30,8 +30,21 @@
 
 
 <!-- Matomo -->
-<p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p>
-<!-- End Matomo Code -->
+<script type="text/javascript">
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="//cdancette-analytics.l4th.fr/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <noscript><p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+  <!-- End Matomo Code -->
   
   
   </head>
@@ -565,7 +578,7 @@ et la même récompense). Ici l’environnement n’est pas déterministe, car l
     <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">Q2</span><span class="p">)</span></code></pre></figure>
 
 <p>Etape importante : ici, on choisit quelle action on va effectuer pour ce tour. 
-On a une probabilité <script type="math/tex">{1/(i+1)}</script>de faire une action aléatoire (i = 0 au début, donc l’action est forcément aléatoire). 
+On a une probabilité \({1/(i+1)}\)de faire une action aléatoire (i = 0 au début, donc l’action est forcément aléatoire). 
 Puis cette probabilité décroit au cours du temps.</p>
 
 <figure class="highlight"><pre><code class="language-python" data-lang="python">    <span class="n">Q</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="n">lr</span><span class="o">*</span><span class="p">(</span><span class="n">reward</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">s1</span><span class="p">,:])</span> <span class="o">-</span> <span class="n">Q</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">])</span> <span class="c1"># Fonction de mise à jour de la Q-table</span></code></pre></figure>

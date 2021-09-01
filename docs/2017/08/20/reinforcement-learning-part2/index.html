@@ -7,7 +7,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <title>Corentin Dancette | Reinforcement learning sur un jeu simple grâce au Q-learning, Partie 2 : réseau de neurones avec Keras</title>
-<meta name="description" content="Corentin Dancette - personal website and blog
+<meta name="description" content="Corentin Dancette personal website and blog
 ">
 
 <!-- Bootstrap & MDB -->
@@ -30,8 +30,21 @@
 
 
 <!-- Matomo -->
-<p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p>
-<!-- End Matomo Code -->
+<script type="text/javascript">
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="//cdancette-analytics.l4th.fr/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <noscript><p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+  <!-- End Matomo Code -->
   
   
   </head>
@@ -168,9 +181,9 @@
 <p>Les paramètres de cette classe seront :</p>
 <ul>
   <li>les dimensions du réseau</li>
-  <li>le facteur d’actualisation <script type="math/tex">\gamma</script>. Il apparait dans la formule d’actualisation du Q learning : <script type="math/tex">Q(s, a) = r(s, a) + \gamma * max(Q(s', a'))</script></li>
-  <li>Le learning rate <script type="math/tex">\alpha</script>. Ce sera le learning rate de l’algorithme d’apprentissage du réseau de neurone.</li>
-  <li>Le facteur d’exploration <script type="math/tex">\epsilon</script>, et son coefficient multiplicateur (entre 0 et 1). A chaque étape, <script type="math/tex">\epsilon</script> sera multiplié par ce facteur.</li>
+  <li>le facteur d’actualisation \(\gamma\). Il apparait dans la formule d’actualisation du Q learning : \(Q(s, a) = r(s, a) + \gamma * max(Q(s', a'))\)</li>
+  <li>Le learning rate \(\alpha\). Ce sera le learning rate de l’algorithme d’apprentissage du réseau de neurone.</li>
+  <li>Le facteur d’exploration \(\epsilon\), et son coefficient multiplicateur (entre 0 et 1). A chaque étape, \(\epsilon\) sera multiplié par ce facteur.</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Trainer</span><span class="p">:</span>
@@ -253,7 +266,7 @@ Ici, nous récupérons la valeur prédite par le réseau, pour cet état. <code 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">target</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">next_state</span><span class="p">])))</span></code></pre></figure>
 
-<p>Ici, nous choissions la valeur cible pour l’action que nous avons effectué (nous ne changeons pas la valeur pour les autres actions, puisque nous n’avons pas de donnée sur la reward que aurions obtenu). Si c’est l’état final, la cible est la récompense. Sinon, c’est la récompense, plus la meilleure valeur que nous pourrions obtenir avec l’action suivante (dégradée du facteur d’actualisation <script type="math/tex">\gamma</script>)</p>
+<p>Ici, nous choissions la valeur cible pour l’action que nous avons effectué (nous ne changeons pas la valeur pour les autres actions, puisque nous n’avons pas de donnée sur la reward que aurions obtenu). Si c’est l’état final, la cible est la récompense. Sinon, c’est la récompense, plus la meilleure valeur que nous pourrions obtenir avec l’action suivante (dégradée du facteur d’actualisation \(\gamma\))</p>
 
 <figure class="highlight"><pre><code class="language-python" data-lang="python">    <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">state</span><span class="p">])</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">target</span><span class="p">])</span>
@@ -262,7 +275,7 @@ Ici, nous récupérons la valeur prédite par le réseau, pour cet état. <code 
 
 <p>C’est ici que s’effectue l’apprentissage du réseau : nous indiquons au réseau que pour cet état, il doit renvoyer cette sortie. Le réseau va alors modifier légerement ses poids (par l’algorithme de backpropagation), pour se rapprocher de la sortie désirée.</p>
 
-<p>Nous allons enfin définir une méthode qui nous renverra la meilleure action, pour un état donné. Cette fonction nous renverra un état aléatoire selon le paramètre d’exploration <script type="math/tex">\epsilon</script>.</p>
+<p>Nous allons enfin définir une méthode qui nous renverra la meilleure action, pour un état donné. Cette fonction nous renverra un état aléatoire selon le paramètre d’exploration \(\epsilon\).</p>
 
 <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Trainer</span><span class="p">():</span>
 
@@ -287,7 +300,7 @@ Ici, nous récupérons la valeur prédite par le réseau, pour cet état. <code 
 
 <p>Le mode <code class="language-plaintext highlighter-rouge">rand=False</code> nous servira lorsque le modèle sera entrainé, pour l’utiliser.</p>
 
-<p>On retourne alors une action aléatoire avec une probabilité de <script type="math/tex">\epsilon</script>, et sinon, la meilleure action.
+<p>On retourne alors une action aléatoire avec une probabilité de \(\epsilon\), et sinon, la meilleure action.
 On utilise pour cela le réseau de neurone : <code class="language-plaintext highlighter-rouge">self.model.predict(np.array([state]))</code> nous renvoie les valeurs de chaque action, et il nous suffit de choisir l’action avec la valeur maximale.</p>
 
 <p># Lancement de l’entrainement</p>
@@ -322,7 +335,7 @@ On utilise pour cela le réseau de neurone : <code class="language-plaintext hig
         <span class="k">if</span> <span class="n">e</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># print log every 100 episode
 </span>            <span class="k">print</span><span class="p">(</span><span class="s">"episode: {}/{}, moves: {}, score: {}"</span>
                   <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">episodes</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">f"epsilon : </span><span class="si">{</span><span class="n">trainer</span><span class="p">.</span><span class="n">epsilon</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"epsilon : </span><span class="si">{</span><span class="n">trainer</span><span class="p">.</span><span class="n">epsilon</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">scores</span></code></pre></figure>
 
 <p>Dans cette boucle se déroule l’algorithme d’apprentissage par renforcement : L’agent effectue une action (obtenue par <code class="language-plaintext highlighter-rouge">trainer.get_best_action</code>)
