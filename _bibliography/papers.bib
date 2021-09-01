@@ -20,6 +20,19 @@ Which fields are displayed ?
 ADDDE:
 - TODO: image
 
+
+@article{dancette2021beyond,
+  title={Beyond question-based biases: Assessing multimodal shortcut learning in visual question answering},
+  author={Dancette, Corentin and Cadene, Remi and Teney, Damien and Cord, Matthieu},
+  journal={ICCV},
+  year={2021},
+  code={https://github.com/cdancette/detect-shortcuts},
+  pdf={https://arxiv.org/abs/2104.03149},
+  image={/assets/bibliography/shortcuts.png},
+  abstract={We introduce an evaluation methodology for visual question answering (VQA) to better diagnose cases of shortcut learning. These cases happen when a model exploits spurious statistical regularities to produce correct answers but does not actually deploy the desired behavior. There is a need to identify possible shortcuts in a dataset and assess their use before deploying a model in the real world. The research community in VQA has focused exclusively on question-based shortcuts, where a model might, for example, answer "What is the color of the sky" with "blue" by relying mostly on the question-conditional training prior and give little weight to visual evidence. We go a step further and consider multimodal shortcuts that involve both questions and images. We first identify potential shortcuts in the popular VQA v2 training set by mining trivial predictive rules such as co-occurrences of words and visual elements. We then introduce VQA-CounterExamples (VQA-CE), an evaluation protocol based on our subset of CounterExamples i.e. image-question-answer triplets where our rules lead to incorrect answers. We use this new evaluation in a large-scale study of existing approaches for VQA. We demonstrate that even state-of-the-art models perform poorly and that existing techniques to reduce biases are largely ineffective in this context. Our findings suggest that past work on question-based biases in VQA has only addressed one facet of a complex issue. The code for our method is available at https://github.com/cdancette/detect-shortcuts}
+}
+
+
 @article{dancette2020overcoming,
   title={Overcoming Statistical Shortcuts for Open-ended Visual Counting},
   author={Dancette, Corentin and Cadene, Remi and Chen, Xinlei and Cord, Matthieu},
@@ -32,7 +45,6 @@ ADDDE:
   abbr={In review},
   abstract={Machine learning models tend to over-rely on statistical shortcuts. These spurious correlations between parts of the input and the output labels does not hold in real-world settings. We target this issue on the recent open-ended visual counting task which is well suited to study statistical shortcuts. We aim to develop models that learn a proper mechanism of counting regardless of the output label. First, we propose the Modifying Count Distribution (MCD) protocol, which penalizes models that over-rely on statistical shortcuts. It is based on pairs of training and testing sets that do not follow the same count label distribution such as the odd-even sets. Intuitively, models that have learned a proper mechanism of counting on odd numbers should perform well on even numbers. Secondly, we introduce the Spatial Counting Network (SCN), which is dedicated to visual analysis and counting based on natural language questions. Our model selects relevant image regions, scores them with fusion and self-attention mechanisms, and provides a final counting score. We apply our protocol on the recent dataset, TallyQA, and show superior performances compared to state-of-the-art models. We also demonstrate the ability of our model to select the correct instances to count in the image. Code and datasets are available: this https URL }
 }
-
 
 
 @inproceedings{cadene2019rubi,
