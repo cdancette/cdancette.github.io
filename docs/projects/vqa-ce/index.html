@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
-
   <head>
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<title>Corentin Dancette | projects</title>
+<title>Corentin Dancette | VQA-CE (Counterexamples)</title>
 <meta name="description" content="Corentin Dancette personal website and blog
 ">
 
@@ -23,7 +22,7 @@
 <link rel="shortcut icon" href="/assets/img/favicon.ico">
 <link rel="stylesheet" href="/assets/css/main.css">
 
-<link rel="canonical" href="/projects/">
+<link rel="canonical" href="/projects/vqa-ce/">
 
 <!-- Open Graph -->
 
@@ -47,7 +46,79 @@
   <!-- End Matomo Code -->
   
   
+    <script src="/assets/js/distillpub/template.v2.js"></script>
+    <script src="/assets/js/distillpub/transforms.v2.js"></script>
+    
   </head>
+
+  <d-front-matter>
+    <script type="text/json">{
+      "title": "VQA-CE (Counterexamples)",
+      "description": "Beyond Question-Based Biases: Assessing Multimodal Shortcut Learning in Visual Question Answering.",
+      "published": "ICCV 2021",
+      "authors": [
+        
+        {
+          "author": "Corentin Dancette*",
+          "authorURL": "cdancette.fr",
+          "affiliations": [
+            {
+              "name": "Sorbonne Université",
+              "url": ""
+            }
+          ]
+        },
+        
+        {
+          "author": "Rémi Cadène*",
+          "authorURL": "https://cadene.com",
+          "affiliations": [
+            {
+              "name": "Sorbonne Université",
+              "url": ""
+            }
+          ]
+        },
+        
+        {
+          "author": "Damien Teney",
+          "authorURL": "",
+          "affiliations": [
+            {
+              "name": "Idiap Research Institute",
+              "url": ""
+            }
+          ]
+        },
+        
+        {
+          "author": "Matthieu Cord",
+          "authorURL": "",
+          "affiliations": [
+            {
+              "name": "Sorbonne Université, Valeo.ai",
+              "url": ""
+            }
+          ]
+        }
+        
+      ],
+      "katex": {
+        "delimiters": [
+          {
+            "left": "$",
+            "right": "$",
+            "display": false
+          },
+          {
+            "left": "$$",
+            "right": "$$",
+            "display": true
+          }
+        ]
+      }
+    }</script>
+  </d-front-matter>
 
   <body class=" sticky-bottom-footer">
 
@@ -111,11 +182,9 @@
           
           
           
-          <li class="nav-item active">
+          <li class="nav-item ">
               <a class="nav-link" href="/projects/">
                 projects
-                
-                <span class="sr-only">(current)</span>
                 
               </a>
           </li>
@@ -140,177 +209,68 @@
 
     <!-- Content -->
 
-    <div class="container mt-5">
-      <div class="post">
+    <div class="post distill">
 
-  <header class="post-header">
-    <h1 class="post-title">projects</h1>
-    <p class="post-description">Projects I contributed to</p>
-  </header>
+      <d-title>
+        <h1>VQA-CE (Counterexamples)</h1>
+        <p>Beyond Question-Based Biases: Assessing Multimodal Shortcut Learning in Visual Question Answering.</p>
+      </d-title>
 
-  <article>
-    <div class="projects grid">
+      <d-byline></d-byline>
 
-  
-  
-  <div class="grid-item">
-    
-    <a href="https://github.com/bootphon/abnet3/" target="_blank">
-    
-      <div class="card hoverable">
-        
-        <div class="card-body">
-          <h2 class="card-title">ABNet3</h2>
-          <p class="card-text">Representation learning package using side information, system for subword modeling for Zeroresource challenge.</p>
-          <div class="row ml-1 mr-1 p-0">
-            
-            <div class="github-icon">
-              <div class="icon" data-toggle="tooltip" title="Code Repository">
-                <a href="https://github.com/bootphon/abnet3/" target="_blank"><i class="fab fa-github gh-icon"></i></a>
-              </div>
-              
-            </div>
-            
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
+      <d-article>
+        <p>This work was published at the ICCV 2021 conference. You can check the <a href="https://arxiv.org/pdf/2104.03149.pdf">paper</a>, and the <a href="https://github.com/cdancette/detect-shortcuts">code</a>.</p>
 
-  <div class="grid-item">
-    
-    <a href="https://github.com/cadene/bootstrap.pytorch" target="_blank">
-    
-      <div class="card hoverable">
-        
-        <img src="https://raw.githubusercontent.com/Cadene/bootstrap.pytorch/master/docs/source/_static/img/bootstrap-logo-dark.png" alt="project thumbnail" />
-        
-        <div class="card-body">
-          <h2 class="card-title">Bootstrap.pytorch</h2>
-          <p class="card-text">A pytorch wrapper to bootstrap your deep learning projects.</p>
-          <div class="row ml-1 mr-1 p-0">
-            
-            <div class="github-icon">
-              <div class="icon" data-toggle="tooltip" title="Code Repository">
-                <a href="https://github.com/cadene/bootstrap.pytorch" target="_blank"><i class="fab fa-github gh-icon"></i></a>
-              </div>
-              
-            </div>
-            
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
+<p>To download the VQA-CE data, check out our github <a href="https://github.com/cdancette/detect-shortcuts">https://github.com/cdancette/detect-shortcuts</a></p>
 
-  <div class="grid-item">
-    
-    <a href="https://github.com/cdancette/multimodal" target="_blank">
-    
-      <div class="card hoverable">
-        
-        <img src="https://repository-images.githubusercontent.com/247125886/a455bb00-915d-11eb-9c34-1003b52b899d" alt="project thumbnail" />
-        
-        <div class="card-body">
-          <h2 class="card-title">multimodal</h2>
-          <p class="card-text">A library for vision and language research.</p>
-          <div class="row ml-1 mr-1 p-0">
-            
-            <div class="github-icon">
-              <div class="icon" data-toggle="tooltip" title="Code Repository">
-                <a href="https://github.com/cdancette/multimodal" target="_blank"><i class="fab fa-github gh-icon"></i></a>
-              </div>
-              
-            </div>
-            
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
+<h3 id="abstract">Abstract</h3>
 
-  <div class="grid-item">
-    
-    <a href="/projects/rubi/">
-    
-      <div class="card hoverable">
-        
-        <img src="https://raw.githubusercontent.com/cdancette/rubi.bootstrap.pytorch/master/assets/model_rubi.png" alt="project thumbnail" />
-        
-        <div class="card-body">
-          <h2 class="card-title">Rubi</h2>
-          <p class="card-text">Reducing Unimodal Biases for Visual Question Answering.</p>
-          <div class="row ml-1 mr-1 p-0">
-            
-            <div class="github-icon">
-              <div class="icon" data-toggle="tooltip" title="Code Repository">
-                <a href="https://github.com/cdancette/rubi.bootstrap.pytorch" target="_blank"><i class="fab fa-github gh-icon"></i></a>
-              </div>
-              
-            </div>
-            
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
+<p>We introduce an evaluation methodology for visual question answering (VQA) to better diagnose cases of shortcut learning. These cases happen when a model exploits spurious statistical regularities to produce correct answers but does not actually deploy the desired behavior. There is a need to identify possible shortcuts in a dataset and assess their use before deploying a model in the real world. The research community in VQA has focused exclusively on question-based shortcuts, where a model might, for example, answer “What is the color of the sky” with “blue” by relying mostly on the question-conditional training prior and give little weight to visual evidence. We go a step further and consider multimodal shortcuts that involve both questions and images.</p>
 
-  <div class="grid-item">
-    
-    <a href="/projects/vqa-ce/">
-    
-      <div class="card hoverable">
-        
-        <img src="https://user-images.githubusercontent.com/10550327/132852024-0dac6c04-3854-4007-a4b8-6017b2496ecd.png" alt="project thumbnail" />
-        
-        <div class="card-body">
-          <h2 class="card-title">VQA-CE (Counterexamples)</h2>
-          <p class="card-text">Beyond Question-Based Biases: Assessing Multimodal Shortcut Learning in Visual Question Answering.</p>
-          <div class="row ml-1 mr-1 p-0">
-            
-            <div class="github-icon">
-              <div class="icon" data-toggle="tooltip" title="Code Repository">
-                <a href="https://github.com/cdancette/detect-shortcuts" target="_blank"><i class="fab fa-github gh-icon"></i></a>
-              </div>
-              
-            </div>
-            
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <div class="grid-item">
-    
-    <a href="https://github.com/cdancette/vqa-cp-leaderboard" target="_blank">
-    
-      <div class="card hoverable">
-        
-        <div class="card-body">
-          <h2 class="card-title">VQA-CP Leaderboard</h2>
-          <p class="card-text">Leaderboard for VQA-CP papers.</p>
-          <div class="row ml-1 mr-1 p-0">
-            
-            <div class="github-icon">
-              <div class="icon" data-toggle="tooltip" title="Code Repository">
-                <a href="https://github.com/cdancette/vqa-cp-leaderboard" target="_blank"><i class="fab fa-github gh-icon"></i></a>
-              </div>
-              
-            </div>
-            
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
-
-
+<p>
+<div class="row justify-content-center">
+        <img src="/assets/vqa-ce/vqa-ce.png" alt="drawing" width="900px" />
 </div>
+</p>
 
-  </article>
+<p>We first identify potential shortcuts in the popular VQA v2 training set by mining trivial predictive rules such as co-occurrences of words and visual elements. We then introduce VQA-CounterExamples (VQA-CE), an evaluation protocol based on our subset of CounterExamples i.e. image-question-answer triplets where our rules lead to incorrect answers. We use this new evaluation in a large-scale study of existing approaches for VQA. We demonstrate that even state-of-the-art models perform poorly and that existing techniques to reduce biases are largely ineffective in this context.</p>
 
+<p>Our findings suggest that past work on question-based biases in VQA has only addressed one facet of a complex issue.</p>
+
+<h3 id="our-vqa-ce-counterexamples-evaluation-protocol">Our VQA-CE (CounterExamples) evaluation protocol</h3>
+
+<p>By leveraging the shortcuts that we have detected using our rule mining pipeline , we build the Counterexamples subset of the VQA v2 validation set.
+This subset is made of 63,298 examples on which all shortcuts provide the incorrect answer.
+As a consequence, VQA models that exploit these shortcuts to predict will not be able to get accurate answers on this kind of examples. They will be penalized and obtain a lower accuracy on this subset.
+On the contrary, we build the non-overlapping Easy subset.
+It is made of 147,681 examples on which at least one shortcut provides the correct answer.
+On this subset, VQA models that exploit shortcuts can reach high accuracy.
+Finally, 3,375 examples are not matched by any shortcut’s antecedent.</p>
+
+<h3 id="results">Results</h3>
+
+<p>
+<div class="row justify-content-center">
+        <img src="/assets/vqa-ce/vqa-ce-results.png" alt="drawing" width="800px" />
 </div>
+</p>
+
+<p>We show that most bias-reduction methods have a very small impact on our counterexamples. It demonstrates the need to build new bias-reduction methods with improved methodology.</p>
+
+<h3 id="counterexamples">Counterexamples</h3>
+
+<p>
+<div class="row justify-content-center">
+        <img src="/assets/vqa-ce/rules-counterexamples.png" alt="drawing" width="800px" />
+</div>
+</p>
+
+      </d-article>
+
+      <d-appendix>
+        <d-footnote-list></d-footnote-list>
+        <d-citation-list></d-citation-list>
+      </d-appendix>
 
     </div>
 
@@ -373,5 +333,8 @@
 
 
 
+
+  <d-bibliography src="/assets/bibliography/">
+  </d-bibliography>
 
 </html>
