@@ -28,6 +28,9 @@ I'm very interested in machine learning and deep learning, more specifically for
 
 ## Education
 
+**PhD Student, Sorbonne Université, Paris**
+I am currently a PhD candidate at Sorbonne Université. My PhD subject is "Deep Learning for Visual Reasoning".
+
 **Master degree, Computer Science, Georgia Institute of Technology**
 I graduated from Georgia Tech, with a specialization in machine learning and interactive intelligence.
 

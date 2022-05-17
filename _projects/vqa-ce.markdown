@@ -4,7 +4,7 @@ description: "Beyond Question-Based Biases: Assessing Multimodal Shortcut Learni
 img: https://user-images.githubusercontent.com/10550327/132852024-0dac6c04-3854-4007-a4b8-6017b2496ecd.png
 github: https://github.com/cdancette/detect-shortcuts
 # github_stars: 128
-title: VQA-Counterexamples
+title: VQA-CE (Counterexamples)
 importance: 1
 authors:
     - name: Corentin Dancette*
