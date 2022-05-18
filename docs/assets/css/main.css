@@ -80,6 +80,8 @@ footer.sticky-bottom { border-top: 1px solid #e8e8e8; padding-top: 40px; padding
 .projects .grid-item a:hover { color: #B509AC; }
 .projects .card img { width: 100%; }
 
+.news .title { font-weight: bolder; }
+
 .publications { margin-top: 2rem; }
 .publications h2.year { color: #e8e8e8; border-top: 1px solid #e8e8e8; padding-top: 1rem; margin-top: 2rem; margin-bottom: -2rem; text-align: right; }
 .publications ol.bibliography { list-style: none; padding: 0; margin-top: 0; }
