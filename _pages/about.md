@@ -10,6 +10,7 @@ profile:
   address: 
 
 news: false
+talks: true
 social: false
 
 # bibliography

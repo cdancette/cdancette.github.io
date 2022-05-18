@@ -5,3 +5,6 @@ inline: true
 ---
 
 A simple inline announcement.
+This is inline
+
+Two lines

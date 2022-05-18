@@ -29,10 +29,6 @@ layout: default
         {% endif %}
     </div>
 
-    {% if page.news %}
-      {% include news.html %}
-    {% endif %}
-
     {% if page.social %}
     <div class="social">
       {% include social.html %}
@@ -50,5 +46,15 @@ layout: default
     <h2 class="year">{{y}}</h2>
     {% bibliography -f papers -q @*[year={{y}}]* %}
   {% endfor %}
+
+
+
+{% if page.talks %}
+{% include talks.html %}
+{% endif %}
+
+{% if page.news %}
+  {% include news.html %}
+{% endif %}
 
 </div>
