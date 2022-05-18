@@ -6,7 +6,7 @@
       {% assign talks = site.talks | reverse %}
       {% for item in talks limit: site.talks_limit %}
         <tr>
-          <th scope="row">{{ item.date | date: "%b %Y" }}</th>
+          <th style="width: 10%" scope="row">{{ item.date | date: "%b %Y" }}</th>
           <td>
             <span class="title">{{item.title}}</span>
             <br>
