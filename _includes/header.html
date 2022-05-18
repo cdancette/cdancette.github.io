@@ -40,6 +40,15 @@
                 {% endif %}
               </a>
             </li>
+
+
+            <!-- Talks -->
+            <li class="nav-item {% if page.title == 'about' %}active{% endif %}">
+              <a class="nav-link" href="{{ '/' | relative_url }}#talks">
+                talks
+              </a>
+            </li>
+
           {% if site.blog_name %}
           <!-- Blog -->
           <li class="nav-item {% if page.url contains 'blog' %}active{% endif %}">
