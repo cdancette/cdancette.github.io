@@ -1,0 +1,26 @@
+<div class="news">
+  <h2>Talks</h2>
+  {% if site.talks  %}
+    <div class="table-responsive">
+      <table class="table table-sm table-borderless">
+      {% assign talks = site.talks | reverse %}
+      {% for item in talks limit: site.talks_limit %}
+        <tr>
+          <th scope="row">{{ item.date | date: "%b %Y" }}</th>
+          <td>
+            <span class="title">{{item.title}}</span>
+            <br>
+            {% if item.inline %}
+              {{ item.content | remove: '<p>' | remove: '</p>' | emojify }}
+            {% else %}
+              <a class="news-title" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </table>
+    </div>
+  {% else %}
+    <p>No news so far...</p>
+  {% endif %}
+</div>
