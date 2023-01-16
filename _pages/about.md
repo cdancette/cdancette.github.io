@@ -41,6 +41,9 @@ I studied Engineering and Computer Science at Ecole Centrale Paris.
 
 ## Internships and projects
 
+**Research Internship, Meta AI / FAIR, Summer 2022**  
+Research intern at Meta AI, San Francisco, under the supervision of [Marcus Rorhbach](https://rohrbach.vision/). I worked on reliability of deep learning models in Visual Question Answering.
+
 **Research Internship, CoML, Spring 2018**  
 I interned for 6 months at the [CoML team](http://www.lscp.net/persons/dupoux/bootphon/index.html), a research lab in École Normale Supérieure in Paris. I worked on unsupervised machine learning for words and phoneme discovery
 in speech data.
