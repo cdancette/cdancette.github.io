@@ -3,10 +3,8 @@ layout: page
 permalink: /diffusion-models/
 title: Augmenting diffusion models with semantic spatial layout conditioning
 description: 
-nav: true
+nav: false
 ---
-
-# Augmenting diffusion models with semantic spatial layout conditioning
 
 Diffusion models have been very successful at generating image conditioned on textual inputs. Recently quite a few methods proposed to augment them with the ability to take semantic maps as conditioning, like SpaText, Paint with Words (in the ediff-I paper), ControlNet, and T2I-Adapter. 
 
