@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Corentin Dancette | Augmenting diffusion models with semantic spatial layout conditioning</title>
+<meta name="description" content="Corentin Dancette personal website and blog
+">
+
+<!-- Bootstrap & MDB -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/css/mdb.min.css" integrity="sha256-/SwJ2GDcEt5382i8zqDwl36VJGECxEoIcBIuoLmLR4g=" crossorigin="anonymous" />
+
+<!-- Fonts & Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"  integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons">
+
+<!-- Styles -->
+<link rel="shortcut icon" href="/assets/img/favicon.ico">
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<link rel="canonical" href="/_pages/diffusion_models/">
+
+<!-- Open Graph -->
+
+
+
+<!-- Matomo -->
+<script type="text/javascript">
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="//cdancette-analytics.l4th.fr/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <noscript><p><img src="//cdancette-analytics.l4th.fr/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+  <!-- End Matomo Code -->
+  
+  
+  </head>
+
+  <body class=" sticky-bottom-footer">
+
+    <!-- Header -->
+
+    <header>
+
+    <!-- Nav Bar -->
+    <nav id="navbar" class="navbar navbar-light bg-white navbar-expand-sm sticky-top">
+    <div class="container">
+      
+        
+        <a class="navbar-brand title font-weight-lighter" href="https://cdancette.fr/"><span class="font-weight-bold">Corentin</span> Dancette</a>
+      
+      <!-- Navbar Toogle -->
+      <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+      <div class="collapse navbar-collapse text-right" id="navbarNav">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">
+              about
+              
+            </a>
+          </li>
+          <ul class="navbar-nav ml-auto flex-nowrap">
+            <!-- About -->
+            <li class="nav-item ">
+              <a class="nav-link" href="/#publications">
+                publications
+                
+              </a>
+            </li>
+
+
+            <!-- Talks -->
+            <li class="nav-item ">
+              <a class="nav-link" href="/#talks">
+                talks
+              </a>
+            </li>
+
+          
+          <!-- Blog -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/blog/">
+              blog
+              
+            </a>
+          </li>
+          
+          <!-- Other pages -->
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/projects/">
+                projects
+                
+              </a>
+          </li>
+          
+          
+          
+          <li class="nav-item ">
+              <a class="nav-link" href="/teaching/">
+                teaching
+                
+              </a>
+          </li>
+          
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+</header>
+
+
+    <!-- Content -->
+
+    <div class="container mt-5">
+      <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Augmenting diffusion models with semantic spatial layout conditioning</h1>
+    <p class="post-description"></p>
+  </header>
+
+  <article>
+    
+<h2 id="augmenting-diffusion-models-with-semantic-spatial-layout-conditioning">Augmenting diffusion models with semantic spatial layout conditioning</h2>
+
+<p>Diffusion models have been very successful at generating image conditioned on textual inputs. Recently quite a few methods proposed to augment them with the ability to take semantic maps as conditioning, like SpaText, Paint with Words (in the ediff-I paper), ControlNet, and T2I-Adapter.</p>
+
+<p>In this post, we evaluate these different methods on the COCO dataset, and check how these novel methods perform in comparison with traditional train-based methods like OASIS and SDM.</p>
+
+<p>We consider three evaluation scenarios: The first setting is the classical semantic image synthesis framework, where we give as input a complete segmentation map (which might contain <em>unlabelled</em> pixels, generally discarded), and the task is to generate a real image whose segmentation mask will be identical. The metrics are:</p>
+<ul>
+  <li>mIoU between input mask and detected mask (to detect the mask, we use a state-of-the-art ViT-Adapter segmentation network)</li>
+  <li>FID using the entire COCO validation set as reference set, at resolution 512;</li>
+  <li>CLIP, the average CLIP similarity between the generated image and conditioning text prompt.</li>
+</ul>
+
+<p>Here are the results:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Method</th>
+      <th style="text-align: center">mIoU</th>
+      <th style="text-align: right">FID</th>
+      <th style="text-align: right">CLIPScore</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Stable Diffusion</td>
+      <td style="text-align: center">11.7</td>
+      <td style="text-align: right">23.6</td>
+      <td style="text-align: right">31.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">SpaText</td>
+      <td style="text-align: center">16.8</td>
+      <td style="text-align: right">19.8</td>
+      <td style="text-align: right">30.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">T2I-Adapter</td>
+      <td style="text-align: center">33.3</td>
+      <td style="text-align: right">17.2</td>
+      <td style="text-align: right">31.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Paint with Words</td>
+      <td style="text-align: center">21.2</td>
+      <td style="text-align: right">36.2</td>
+      <td style="text-align: right">29.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">OASIS</td>
+      <td style="text-align: center">52.1</td>
+      <td style="text-align: right">15.0</td>
+      <td style="text-align: right">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">SDM</td>
+      <td style="text-align: center">49.3</td>
+      <td style="text-align: right">17.2</td>
+      <td style="text-align: right">N/A</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Stable Diffusion refers to classical text-to image generation, without conditioning on masks.
+We note that the zero-shot method Paint-with words has a much better mIoU score than without conditioning (21.2 vs 11.7), but still very far from classical train-based methods that reach ~50 mIoU.</p>
+
+<p>We also evaluate these methods similarly to SpaText: we remove masks covering less than 5% of the image, and consider $1 \leq K \leq 3$ conditioning masks for each generated image.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Method</th>
+      <th style="text-align: center">mIoU</th>
+      <th style="text-align: right">FID</th>
+      <th style="text-align: right">CLIPScore</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Stable Diffusion</td>
+      <td style="text-align: center">11.7</td>
+      <td style="text-align: right">23.6</td>
+      <td style="text-align: right">31.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Spatext</td>
+      <td style="text-align: center">23.8</td>
+      <td style="text-align: right">16.2</td>
+      <td style="text-align: right">30.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">T2I-Adapter</td>
+      <td style="text-align: center">31.6</td>
+      <td style="text-align: right">19.2</td>
+      <td style="text-align: right">30.6</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Paint with Words</td>
+      <td style="text-align: center">23.8</td>
+      <td style="text-align: right">25.8</td>
+      <td style="text-align: right">29.6</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">OASIS</td>
+      <td style="text-align: center">41.4</td>
+      <td style="text-align: right">46.8</td>
+      <td style="text-align: right">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">SDM</td>
+      <td style="text-align: center">29.3</td>
+      <td style="text-align: right">65.3</td>
+      <td style="text-align: right">N/A</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In this setting, we observe that train-based methods OASIS and SDM break, because they have not been trained to take only a few masks as conditioning information. This is why zero-shot methods like Paint-with words are more interesting. Spatext has a very good FID since it is the setup on which it has been trained.</p>
+
+<p>Finally, we consider the intermediate setup where we consider as conditioning masks all masks covering more than 5% of the generated image.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Method</th>
+      <th style="text-align: center">mIoU</th>
+      <th style="text-align: right">FID</th>
+      <th style="text-align: right">CLIPScore</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Stable Diffusion</td>
+      <td style="text-align: center">11.7</td>
+      <td style="text-align: right">23.6</td>
+      <td style="text-align: right">31.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Spatext</td>
+      <td style="text-align: center">19.2</td>
+      <td style="text-align: right">18.9</td>
+      <td style="text-align: right">30.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">T2I-Adapter</td>
+      <td style="text-align: center">35.1</td>
+      <td style="text-align: right">17.8</td>
+      <td style="text-align: right">31.3</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Paint with Words</td>
+      <td style="text-align: center">23.5</td>
+      <td style="text-align: right">35.0</td>
+      <td style="text-align: right">29.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">OASIS</td>
+      <td style="text-align: center">53.7</td>
+      <td style="text-align: right">18.2</td>
+      <td style="text-align: right">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">SDM</td>
+      <td style="text-align: center">41.7</td>
+      <td style="text-align: right">28.6</td>
+      <td style="text-align: right">N/A</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>OASIS and SDM work much better, because the conditioning information covers most of the image.</p>
+
+<p>Overall, on the three different settings, the best method seems to be T2I-Adapter, which adapts diffusion models to take spatial layout masks as conditioning information by fine-tuning adaptation layers on the COCO dataset. However, for free-form text conditioning, Paint with words offers a more flexible interface.</p>
+
+  </article>
+
+</div>
+
+    </div>
+
+    <!-- Footer -->
+
+    
+<footer class="sticky-bottom mt-5">
+  <div class="container">
+    &copy; Copyright 2023 Corentin Dancette.
+    Powered sort_by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
+
+    
+  </div>
+</footer>
+
+
+
+  </body>
+
+  <!-- Load Core and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js" integrity="sha256-OH05DFHUWzr725HmuHo3pnuvUUn+TJuj8/Qz9xytFEw=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.17.0/js/mdb.min.js"  integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<!-- Load Common JS -->
+<script src="/assets/js/common.js"></script>
+
+<!-- Code Syntax Highlighting -->
+<link rel="stylesheet" href="https://gitcdn.link/repo/jwarby/jekyll-pygments-themes/master/github.css" />
+
+
+<!-- Load KaTeX -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" integrity="sha256-V8SV2MO1FUb63Bwht5Wx9x6PVHNa02gv8BgH/uH3ung=" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous"></script>
+<script src="/assets/js/katex.js"></script>
+
+
+
+<!-- Load Mansory & imagesLoaded -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js" integrity="" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+
+<!-- Project Cards Layout -->
+<script type="text/javascript">
+  // Init Masonry
+  var $grid = $('.grid').masonry({
+    gutter: 10,
+    horizontalOrder: true,
+    itemSelector: '.grid-item',
+  });
+  // layout Masonry after each image loads
+  $grid.imagesLoaded().progress( function() {
+    $grid.masonry('layout');
+  });
+</script>
+
+
+
+
+
+
+
+</html>
