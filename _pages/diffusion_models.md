@@ -18,7 +18,7 @@ We consider three evaluation scenarios: The first setting is the classical seman
 Here are the results:
 
 | Method      | mIoU  | FID     | CLIPScore  |
-| :---        |    :----: |  ---: |    ---: |
+|-------|-------|-------|-------|
 | Stable Diffusion   |   11.7    | 23.6      |  31.8 |
 | SpaText       |   16.8    | 19.8      |  30.0 |
 | T2I-Adapter       |   33.3    | 17.2      |  31.5 |
@@ -29,7 +29,7 @@ Here are the results:
 Stable Diffusion refers to classical text-to image generation, without conditioning on masks.
 We note that the zero-shot method Paint-with words has a much better mIoU score than without conditioning (21.2 vs 11.7), but still very far from classical train-based methods that reach ~50 mIoU.
 
-We also evaluate these methods similarly to SpaText: we remove masks covering less than 5% of the image, and consider $1 \leq K \leq 3$ conditioning masks for each generated image.
+We also evaluate these methods similarly to SpaText: we remove masks covering less than 5% of the image, and consider $$1 \leq K \leq 3$$ conditioning masks for each generated image.
 
 | Method      | mIoU  | FID     | CLIPScore  |
 | :---        |    :----: |  ---: |    ---: |
