@@ -174,48 +174,48 @@
 <table>
   <thead>
     <tr>
-      <th style="text-align: left">Method</th>
-      <th style="text-align: center">mIoU</th>
-      <th style="text-align: right">FID</th>
-      <th style="text-align: right">CLIPScore</th>
+      <th>Method</th>
+      <th>mIoU</th>
+      <th>FID</th>
+      <th>CLIPScore</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="text-align: left">Stable Diffusion</td>
-      <td style="text-align: center">11.7</td>
-      <td style="text-align: right">23.6</td>
-      <td style="text-align: right">31.8</td>
+      <td>Stable Diffusion</td>
+      <td>11.7</td>
+      <td>23.6</td>
+      <td>31.8</td>
     </tr>
     <tr>
-      <td style="text-align: left">SpaText</td>
-      <td style="text-align: center">16.8</td>
-      <td style="text-align: right">19.8</td>
-      <td style="text-align: right">30.0</td>
+      <td>SpaText</td>
+      <td>16.8</td>
+      <td>19.8</td>
+      <td>30.0</td>
     </tr>
     <tr>
-      <td style="text-align: left">T2I-Adapter</td>
-      <td style="text-align: center">33.3</td>
-      <td style="text-align: right">17.2</td>
-      <td style="text-align: right">31.5</td>
+      <td>T2I-Adapter</td>
+      <td>33.3</td>
+      <td>17.2</td>
+      <td>31.5</td>
     </tr>
     <tr>
-      <td style="text-align: left">Paint with Words</td>
-      <td style="text-align: center">21.2</td>
-      <td style="text-align: right">36.2</td>
-      <td style="text-align: right">29.4</td>
+      <td>Paint with Words</td>
+      <td>21.2</td>
+      <td>36.2</td>
+      <td>29.4</td>
     </tr>
     <tr>
-      <td style="text-align: left">OASIS</td>
-      <td style="text-align: center">52.1</td>
-      <td style="text-align: right">15.0</td>
-      <td style="text-align: right">N/A</td>
+      <td>OASIS</td>
+      <td>52.1</td>
+      <td>15.0</td>
+      <td>N/A</td>
     </tr>
     <tr>
-      <td style="text-align: left">SDM</td>
-      <td style="text-align: center">49.3</td>
-      <td style="text-align: right">17.2</td>
-      <td style="text-align: right">N/A</td>
+      <td>SDM</td>
+      <td>49.3</td>
+      <td>17.2</td>
+      <td>N/A</td>
     </tr>
   </tbody>
 </table>
@@ -223,7 +223,7 @@
 <p>Stable Diffusion refers to classical text-to image generation, without conditioning on masks.
 We note that the zero-shot method Paint-with words has a much better mIoU score than without conditioning (21.2 vs 11.7), but still very far from classical train-based methods that reach ~50 mIoU.</p>
 
-<p>We also evaluate these methods similarly to SpaText: we remove masks covering less than 5% of the image, and consider $1 \leq K \leq 3$ conditioning masks for each generated image.</p>
+<p>We also evaluate these methods similarly to SpaText: we remove masks covering less than 5% of the image, and consider \(1 \leq K \leq 3\) conditioning masks for each generated image.</p>
 
 <table>
   <thead>
