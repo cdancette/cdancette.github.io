@@ -150,15 +150,28 @@
     <!-- Content -->
 
     <div class="container mt-5">
-      <div class="post">
+      
+
+<div class="post">
 
   <header class="post-header">
     <h1 class="post-title">Augmenting diffusion models with semantic spatial layout conditioning</h1>
-    <p class="post-description"></p>
+    <p class="post-meta">February 20, 2023</p>
   </header>
 
-  <article>
-    <p>Diffusion models have been very successful at generating image conditioned on textual inputs. Recently quite a few methods proposed to augment them with the ability to take semantic maps as conditioning, like SpaText, Paint with Words (in the ediff-I paper), ControlNet, and T2I-Adapter.</p>
+  <article class="post-content">
+    <style type="text/css">
+  td {
+    padding:0 25px 0 0; /* Only right padding*/
+  }
+  th {
+    padding:0 25px 0 0; /* Only right padding*/
+  }
+</style>
+
+<!-- ## Augmenting diffusion models with semantic spatial layout conditioning -->
+
+<p>Diffusion models have been very successful at generating image conditioned on textual inputs. Recently quite a few methods proposed to augment them with the ability to take semantic maps as conditioning, like SpaText, Paint with Words (in the ediff-I paper), ControlNet, and T2I-Adapter.</p>
 
 <p>In this post, we evaluate these different methods on the COCO dataset, and check how these novel methods perform in comparison with traditional train-based methods like OASIS and SDM.</p>
 
@@ -171,167 +184,177 @@
 
 <p>Here are the results:</p>
 
+<center>
 <table>
   <thead>
     <tr>
-      <th>Method</th>
-      <th>mIoU</th>
-      <th>FID</th>
-      <th>CLIPScore</th>
+      <th style="text-align: left">Method</th>
+      <th style="text-align: center">mIoU</th>
+      <th style="text-align: right">FID</th>
+      <th style="text-align: center">CLIP</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Stable Diffusion</td>
-      <td>11.7</td>
-      <td>23.6</td>
-      <td>31.8</td>
+      <td style="text-align: left">Stable Diffusion</td>
+      <td style="text-align: center">11.7</td>
+      <td style="text-align: right">23.6</td>
+      <td style="text-align: center">31.8</td>
     </tr>
     <tr>
-      <td>SpaText</td>
-      <td>16.8</td>
-      <td>19.8</td>
-      <td>30.0</td>
+      <td style="text-align: left">SpaText</td>
+      <td style="text-align: center">16.8</td>
+      <td style="text-align: right">19.8</td>
+      <td style="text-align: center">30.0</td>
     </tr>
     <tr>
-      <td>T2I-Adapter</td>
-      <td>33.3</td>
-      <td>17.2</td>
-      <td>31.5</td>
+      <td style="text-align: left">T2I-Adapter</td>
+      <td style="text-align: center">33.3</td>
+      <td style="text-align: right">17.2</td>
+      <td style="text-align: center">31.5</td>
     </tr>
     <tr>
-      <td>Paint with Words</td>
-      <td>21.2</td>
-      <td>36.2</td>
-      <td>29.4</td>
+      <td style="text-align: left">Paint with Words</td>
+      <td style="text-align: center">21.2</td>
+      <td style="text-align: right">36.2</td>
+      <td style="text-align: center">29.4</td>
     </tr>
     <tr>
-      <td>OASIS</td>
-      <td>52.1</td>
-      <td>15.0</td>
-      <td>N/A</td>
+      <td style="text-align: left">OASIS</td>
+      <td style="text-align: center">52.1</td>
+      <td style="text-align: right">15.0</td>
+      <td style="text-align: center">N/A</td>
     </tr>
     <tr>
-      <td>SDM</td>
-      <td>49.3</td>
-      <td>17.2</td>
-      <td>N/A</td>
+      <td style="text-align: left">SDM</td>
+      <td style="text-align: center">49.3</td>
+      <td style="text-align: right">17.2</td>
+      <td style="text-align: center">N/A</td>
     </tr>
   </tbody>
 </table>
+</center>
+<p><br /></p>
 
 <p>Stable Diffusion refers to classical text-to image generation, without conditioning on masks.
 We note that the zero-shot method Paint-with words has a much better mIoU score than without conditioning (21.2 vs 11.7), but still very far from classical train-based methods that reach ~50 mIoU.</p>
 
 <p>We also evaluate these methods similarly to SpaText: we remove masks covering less than 5% of the image, and consider \(1 \leq K \leq 3\) conditioning masks for each generated image.</p>
 
+<center>
 <table>
   <thead>
     <tr>
       <th style="text-align: left">Method</th>
       <th style="text-align: center">mIoU</th>
-      <th style="text-align: right">FID</th>
-      <th style="text-align: right">CLIPScore</th>
+      <th style="text-align: center">FID</th>
+      <th style="text-align: center">CLIP</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: left">Stable Diffusion</td>
       <td style="text-align: center">11.7</td>
-      <td style="text-align: right">23.6</td>
-      <td style="text-align: right">31.8</td>
+      <td style="text-align: center">23.6</td>
+      <td style="text-align: center">31.8</td>
     </tr>
     <tr>
       <td style="text-align: left">Spatext</td>
       <td style="text-align: center">23.8</td>
-      <td style="text-align: right">16.2</td>
-      <td style="text-align: right">30.2</td>
+      <td style="text-align: center">16.2</td>
+      <td style="text-align: center">30.2</td>
     </tr>
     <tr>
       <td style="text-align: left">T2I-Adapter</td>
       <td style="text-align: center">31.6</td>
-      <td style="text-align: right">19.2</td>
-      <td style="text-align: right">30.6</td>
+      <td style="text-align: center">19.2</td>
+      <td style="text-align: center">30.6</td>
     </tr>
     <tr>
       <td style="text-align: left">Paint with Words</td>
       <td style="text-align: center">23.8</td>
-      <td style="text-align: right">25.8</td>
-      <td style="text-align: right">29.6</td>
+      <td style="text-align: center">25.8</td>
+      <td style="text-align: center">29.6</td>
     </tr>
     <tr>
       <td style="text-align: left">OASIS</td>
       <td style="text-align: center">41.4</td>
-      <td style="text-align: right">46.8</td>
-      <td style="text-align: right">N/A</td>
+      <td style="text-align: center">46.8</td>
+      <td style="text-align: center">N/A</td>
     </tr>
     <tr>
       <td style="text-align: left">SDM</td>
       <td style="text-align: center">29.3</td>
-      <td style="text-align: right">65.3</td>
-      <td style="text-align: right">N/A</td>
+      <td style="text-align: center">65.3</td>
+      <td style="text-align: center">N/A</td>
     </tr>
   </tbody>
 </table>
+</center>
+<p><br /></p>
 
 <p>In this setting, we observe that train-based methods OASIS and SDM break, because they have not been trained to take only a few masks as conditioning information. This is why zero-shot methods like Paint-with words are more interesting. Spatext has a very good FID since it is the setup on which it has been trained.</p>
 
 <p>Finally, we consider the intermediate setup where we consider as conditioning masks all masks covering more than 5% of the generated image.</p>
 
+<center>
 <table>
   <thead>
     <tr>
       <th style="text-align: left">Method</th>
       <th style="text-align: center">mIoU</th>
-      <th style="text-align: right">FID</th>
-      <th style="text-align: right">CLIPScore</th>
+      <th style="text-align: center">FID</th>
+      <th style="text-align: center">CLIP</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: left">Stable Diffusion</td>
       <td style="text-align: center">11.7</td>
-      <td style="text-align: right">23.6</td>
-      <td style="text-align: right">31.8</td>
+      <td style="text-align: center">23.6</td>
+      <td style="text-align: center">31.8</td>
     </tr>
     <tr>
       <td style="text-align: left">Spatext</td>
       <td style="text-align: center">19.2</td>
-      <td style="text-align: right">18.9</td>
-      <td style="text-align: right">30.1</td>
+      <td style="text-align: center">18.9</td>
+      <td style="text-align: center">30.1</td>
     </tr>
     <tr>
       <td style="text-align: left">T2I-Adapter</td>
       <td style="text-align: center">35.1</td>
-      <td style="text-align: right">17.8</td>
-      <td style="text-align: right">31.3</td>
+      <td style="text-align: center">17.8</td>
+      <td style="text-align: center">31.3</td>
     </tr>
     <tr>
       <td style="text-align: left">Paint with Words</td>
       <td style="text-align: center">23.5</td>
-      <td style="text-align: right">35.0</td>
-      <td style="text-align: right">29.5</td>
+      <td style="text-align: center">35.0</td>
+      <td style="text-align: center">29.5</td>
     </tr>
     <tr>
       <td style="text-align: left">OASIS</td>
       <td style="text-align: center">53.7</td>
-      <td style="text-align: right">18.2</td>
-      <td style="text-align: right">N/A</td>
+      <td style="text-align: center">18.2</td>
+      <td style="text-align: center">N/A</td>
     </tr>
     <tr>
       <td style="text-align: left">SDM</td>
       <td style="text-align: center">41.7</td>
-      <td style="text-align: right">28.6</td>
-      <td style="text-align: right">N/A</td>
+      <td style="text-align: center">28.6</td>
+      <td style="text-align: center">N/A</td>
     </tr>
   </tbody>
 </table>
+</center>
+<p><br /></p>
 
 <p>OASIS and SDM work much better, because the conditioning information covers most of the image.</p>
 
-<p>Overall, on the three different settings, the best method seems to be T2I-Adapter, which adapts diffusion models to take spatial layout masks as conditioning information by fine-tuning adaptation layers on the COCO dataset. However, for free-form text conditioning, Paint with words offers a more flexible interface.</p>
 
   </article>
+
+  
 
 </div>
 
