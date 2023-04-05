@@ -200,3 +200,25 @@ Finally, we consider the intermediate setup where we consider as conditioning ma
 
 OASIS and SDM work much better, because the conditioning information covers most of the image.
 
+Overall, on the three different settings, the best method seems to be T2I-Adapter, which adapts diffusion models to take spatial layout masks as conditioning information by fine-tuning adaptation layers on the COCO dataset. However, for free-form text conditioning, Paint with words offers a more flexible interface.
+
+
+## References
+
+<a id="1">[1]</a> Denoising diffusion probabilistic models, *Ho, Jonathan and Jain, Ajay and Abbeel, Pieter*, NeurIPS, 2020
+
+<a id="2">[2]</a> SpaText: Spatio-Textual Representation for Controllable Image Generation,  *Avrahami, Omri and Hayes, Thomas and Gafni, Oran and Gupta, Sonal and Taigman, Yaniv and Parikh, Devi and Lischinski, Dani and Fried, Ohad and Yin, Xi*, arXiv preprint arXiv:2211.14305, 2022
+
+<a id="3">[3]</a> ediffi: Text-to-image diffusion models with an ensemble of expert denoisers, *Balaji, Yogesh and Nah, Seungjun and Huang, Xun and Vahdat, Arash and Song, Jiaming and Kreis, Karsten and Aittala, Miika and Aila, Timo and Laine, Samuli and Catanzaro, Bryan and others*, arXiv preprint arXiv:2211.01324, 2022
+
+<a id="4">[4]</a> Adding conditional control to text-to-image diffusion models, *Zhang, Lvmin and Agrawala, Maneesh*, arXiv preprint arXiv:2302.05543, 2023
+
+<a id="5">[5]</a> T2i-adapter: Learning adapters to dig out more controllable ability for text-to-image diffusion models, *Mou, Chong and Wang, Xintao and Xie, Liangbin and Zhang, Jian and Qi, Zhongang and Shan, Ying and Qie, Xiaohu*, arXiv preprint arXiv:2302.08453, 2023
+
+<a id="6">[6]</a> High-resolution image synthesis with latent diffusion models, *Rombach, Robin and Blattmann, Andreas and Lorenz, Dominik and Esser, Patrick and Ommer, Bjorn*, CVPR, 2022 
+
+<a id="7">[7]</a> You only need adversarial supervision for semantic image synthesis, *Sushko, Vadim and Schonfeld, Edgar and Zhang, Dan and Gall, Juergen and Schiele, Bernt and Khoreva, Anna*, ICLR 2021
+
+<a id="8">[8]</a> Semantic image synthesis via diffusion models, *Wang, Weilun and Bao, Jianmin and Zhou, Wengang and Chen, Dongdong and Chen, Dong and Yuan, Lu and Li, Houqiang*, arXiv preprint arXiv:2207.00050, 2022
+
+<a id="9">[9]</a> Vision transformer adapter for dense predictions, *Chen, Zhe and Duan, Yuchen and Wang, Wenhai and He, Junjun and Lu, Tong and Dai, Jifeng and Qiao, Yu*, ICLR 2023
