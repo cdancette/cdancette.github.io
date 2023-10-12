@@ -77,6 +77,12 @@ Here are the results:
       <td style="text-align: right">17.2</td>
       <td style="text-align: center">N/A</td>
     </tr>
+    <tr>
+      <td style="text-align: left">MultiDiffusion</td>
+      <td style="text-align: center">15.8</td>
+      <td style="text-align: right">69.3</td>
+      <td style="text-align: center">24.9</td>
+    </tr>
   </tbody>
 </table>
 </center>
