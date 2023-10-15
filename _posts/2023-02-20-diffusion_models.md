@@ -140,6 +140,10 @@ We also evaluate these methods similarly to SpaText: we remove masks covering le
       <td style="text-align: center">65.3</td>
       <td style="text-align: center">N/A</td>
     </tr>
+      <td style="text-align: left">MultiDiffusion</td>
+      <td style="text-align: right">24.8</td>
+      <td style="text-align: center">22.9</td>
+      <td style="text-align: center">29.4</td>
   </tbody>
 </table>
 </center>
@@ -198,6 +202,10 @@ Finally, we consider the intermediate setup where we consider as conditioning ma
       <td style="text-align: center">28.6</td>
       <td style="text-align: center">N/A</td>
     </tr>
+      <td style="text-align: left">MultiDiffusion</td>
+      <td style="text-align: center">22.3</td>
+      <td style="text-align: right">48.4</td>
+      <td style="text-align: center">24.9</td>
   </tbody>
 </table>
 </center>
